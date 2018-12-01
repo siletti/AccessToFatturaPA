@@ -2,7 +2,7 @@ package com.siletti.contab.stax;
 
 import java.io.FileOutputStream;
 
-import javax.xml.*;
+//import javax.xml.*;
 import javax.xml.stream.*;
 
 public class FatturAttiveXMLStreamWriter {
@@ -14,7 +14,9 @@ public class FatturAttiveXMLStreamWriter {
 			XMLStreamWriter xMLStreamWriter = xMLOutputFactory.createXMLStreamWriter(new FileOutputStream(fileOtpt));
 			xMLStreamWriter.writeStartDocument("1.0");
 			xMLStreamWriter.writeStartElement("FatturaElettronicaHeader");
+			
 			xMLStreamWriter.writeStartElement("CedentePrestatore");
+			
 			xMLStreamWriter.writeStartElement("DatiAnagrafici");
 			xMLStreamWriter.writeStartElement("IdFiscaleIVA");
 				xMLStreamWriter.writeStartElement("IdPaese");
@@ -31,39 +33,34 @@ public class FatturAttiveXMLStreamWriter {
 				xMLStreamWriter.writeStartElement("Denominazione");
 					xMLStreamWriter.writeCharacters("SILETTI '95 SRL");
 				xMLStreamWriter.writeEndElement();
-			xMLStreamWriter.writeEndElement();
+				xMLStreamWriter.writeStartElement("CodEORI");
+					xMLStreamWriter.writeCharacters("IT01808360026");
+				xMLStreamWriter.writeEndElement();
+			xMLStreamWriter.writeEndElement(); //Anagrafica
 			xMLStreamWriter.writeStartElement("RegimeFiscale");
 				xMLStreamWriter.writeCharacters("RF01");
 			xMLStreamWriter.writeEndElement();
-			// End DatiAnagrafici
-			xMLStreamWriter.writeEndElement();
+			xMLStreamWriter.writeEndElement(); //DatiAnagrafici
 
 			xMLStreamWriter.writeStartElement("Sede");
 			xMLStreamWriter.writeStartElement("Indirizzo");
 				xMLStreamWriter.writeCharacters("Via Quintino Sella, 6");
 			xMLStreamWriter.writeEndElement();
-
 			xMLStreamWriter.writeStartElement("CAP");
 				xMLStreamWriter.writeCharacters("13888");
 			xMLStreamWriter.writeEndElement();
-
 			xMLStreamWriter.writeStartElement("Comune");
 				xMLStreamWriter.writeCharacters("Mongrando");
 			xMLStreamWriter.writeEndElement();
-
 			xMLStreamWriter.writeStartElement("Provincia");
 				xMLStreamWriter.writeCharacters("BI");
 			xMLStreamWriter.writeEndElement();
-			
 			xMLStreamWriter.writeStartElement("Nazione");
-			xMLStreamWriter.writeCharacters("IT");
+				xMLStreamWriter.writeCharacters("IT");
 			xMLStreamWriter.writeEndElement();
+			xMLStreamWriter.writeEndElement(); // End Sede
 		
-			// End Sede
-			xMLStreamWriter.writeEndElement();
-			
-			// End CedentePrestatore
-			xMLStreamWriter.writeEndElement();
+			xMLStreamWriter.writeEndElement(); 	// End CedentePrestatore
 			
 			
 			// End FatturaElettronicaHeader

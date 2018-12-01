@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
-import com.healthmarketscience.jackcess.Table;
+//import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.util.ExportUtil;
 
 public class DemoAppDB {
@@ -24,8 +24,7 @@ public class DemoAppDB {
 		}
 		
 		try {
-			Database db2 = DatabaseBuilder.create(Database.FileFormat.V2016 ,new File("C:\\GESTIONE\\REPORTS\\temp2018"));
-			//db2.
+			DatabaseBuilder.create(Database.FileFormat.V2016 ,new File("C:\\GESTIONE\\REPORTS\\temp2018"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

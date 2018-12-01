@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
-import com.healthmarketscience.jackcess.util.ExportUtil;
 
 public class App
         extends Application {
