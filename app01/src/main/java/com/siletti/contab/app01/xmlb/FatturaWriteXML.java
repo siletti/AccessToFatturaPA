@@ -19,24 +19,27 @@ public class FatturaWriteXML {
 
 	public static void WriteFile(String fileOtpt) {
 
-// errore file non trovato 
+        // errore file non trovato 
 		//FatturaElettronicaDocument rootDoc = (FatturaElettronicaDocument)FatturaWriteXML.parseXml(fileOtpt);
 
-		
-		
-		FatturaElettronicaDocument myDoc;
-		myDoc = FatturaElettronicaDocument.Factory.newInstance();
+		FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance();
 		FatturaElettronicaType myFatturaElettronica = myDoc.addNewFatturaElettronica();
 		FatturaElettronicaHeaderType myFatturaElettronicaHeader = myFatturaElettronica.addNewFatturaElettronicaHeader();
 		// manca DatiTrasmissione
-		  // CedentePrestatore
+		
+		// CedentePrestatore
 		CedentePrestatoreType myCedentePrestatore = myFatturaElettronicaHeader.addNewCedentePrestatore();
-		//DatiAnagraficiCedenteType
-		
-		//DatiAnagraficiCedenteTypeImpl
-		//IdFiscaleIVA
-		
-		//myFatturaElettronicaHeader.setCedentePrestatore(null);
+		DatiAnagraficiCedenteType myDatiAnagrafici = myCedentePrestatore.addNewDatiAnagrafici();
+		myDatiAnagrafici.addNewIdFiscaleIVA().setIdPaese("IT");
+		myDatiAnagrafici.getIdFiscaleIVA().setIdCodice("01808360026");
+		myDatiAnagrafici.addNewAnagrafica().setDenominazione("SILETTI '95 SRL");
+		myDatiAnagrafici.setRegimeFiscale(RegimeFiscaleType.RF_01);
+		IndirizzoType mySede = myCedentePrestatore.addNewSede();
+		mySede.setIndirizzo("Via Quintino Sella 6");
+		mySede.setCAP("13888");
+		mySede.setComune("MONGRANDO");
+		mySede.setProvincia("BI");
+		mySede.setNazione("IT");
 		
 			
 		File file = new File(fileOtpt);
