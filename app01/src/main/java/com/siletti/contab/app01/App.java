@@ -1,4 +1,5 @@
 package com.siletti.contab.app01;
+import com.siletti.contab.app01.xmlb.FatturaWriteXML;
 import com.siletti.contab.stax.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -148,7 +149,9 @@ public class App
 			}
 			// creare xml
 			String fileOtpt = "C:\\GESTIONE\\REPORTS\\" + selectedFiles.get(0).getName() +".xml"; 
-			FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
+			
+			FatturaWriteXML.WriteFile(fileOtpt);
+			//FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
 			
 			
 //			actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " +
