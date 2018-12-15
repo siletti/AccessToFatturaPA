@@ -140,7 +140,9 @@ public class App
 
 			// aprire mdb scelto
 			try {
-				Database db = DatabaseBuilder.open(new File("C:\\GESTIONE\\REPORTS\\" + selectedFiles.get(0).getName()));
+//				Database db = DatabaseBuilder.open(new File("C:\\GESTIONE\\REPORTS\\" + selectedFiles.get(0).getName()));
+				Database db = DatabaseBuilder.open(selectedFiles.get(0));
+				System.out.println(db.getFileFormat());
 				Set<String> tableNames = db.getTableNames();
 				tableNames.stream().forEach(element -> System.out.println(element));
 			} catch (IOException e) {
@@ -148,9 +150,9 @@ public class App
 				e.printStackTrace();
 			}
 			// creare xml
-			String fileOtpt = "C:\\GESTIONE\\REPORTS\\" + selectedFiles.get(0).getName() +".xml"; 
 			
-			FatturaWriteXML.WriteFile(fileOtpt);
+			FatturaWriteXML.WriteFile(selectedFiles.get(0));
+			
 			//FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
 			
 			

@@ -6,18 +6,15 @@ import java.io.IOException;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
+import com.healthmarketscience.jackcess.Database;
+import com.healthmarketscience.jackcess.DatabaseBuilder;
+import com.healthmarketscience.jackcess.Table;
+
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.CedentePrestatoreType;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.DatiAnagraficiCedenteType;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.FatturaElettronicaDocument;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.FatturaElettronicaHeaderType;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.FatturaElettronicaType;
-//import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.CedentePrestatoreTypeImpl;
-import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.DatiAnagraficiCedenteTypeImpl;
 
 public class FatturaWriteXML {
 
-	public static void WriteFile(String fileOtpt) {
+	public static void WriteFile(File fatture) {
 
         // errore file non trovato 
 		//FatturaElettronicaDocument rootDoc = (FatturaElettronicaDocument)FatturaWriteXML.parseXml(fileOtpt);
@@ -41,7 +38,20 @@ public class FatturaWriteXML {
 		mySede.setProvincia("BI");
 		mySede.setNazione("IT");
 		
+		// cliente
+		  try {
+			Database db = DatabaseBuilder.open(fatture);
+			Table table = db.getTable("tmpTesta");
 			
+			
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+        String fileOtpt = "C:\\GESTIONE\\REPORTS\\" + fatture.getName() +".xml"; 
+	
 		File file = new File(fileOtpt);
 		try {
 			myDoc.save(file);
