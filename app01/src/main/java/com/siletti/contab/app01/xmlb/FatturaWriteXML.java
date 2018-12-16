@@ -65,6 +65,14 @@ public class FatturaWriteXML {
 				mySede1.setComune(clienteCitta);
 				mySede1.setProvincia(clienteProvincia);
 				mySede1.setNazione(clienteIva.substring(0, 2));
+				
+				FatturaElettronicaBodyType myBody = myFatturaElettronica.addNewFatturaElettronicaBody();
+				DatiGeneraliDocumentoType myDatiGeneraliDocumento =  myBody.addNewDatiGenerali().addNewDatiGeneraliDocumento();
+				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
+				myDatiGeneraliDocumento.setDivisa("EUR");
+				myDatiGeneraliDocumento.setData(null);
+				myDatiGeneraliDocumento.setNumero(clienteProvincia);
+				
 			    
 			    
 			  }
