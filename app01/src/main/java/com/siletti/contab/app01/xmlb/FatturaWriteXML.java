@@ -47,6 +47,26 @@ public class FatturaWriteXML {
 			for(Row row : table) {
 			    System.out.println("Look ma, a row: " + row);
 			    String cliente = row.getString("CodiceCliente");
+			    String clienteDenominazione = row.getString("RagioneSociale1");
+			    String clienteIva = row.getString("PartitaIva");
+			    String clienteIndirizzo = row.getString("Indirizzo");
+			    String clienteCap = row.getString("CAP");
+			    String clienteCitta = row.getString("Citta");
+			    String clienteProvincia = row.getString("Provincia");
+			    
+			    CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader.addNewCessionarioCommittente();
+				DatiAnagraficiCessionarioType myDatiAnagrafici1 = myCessionarioCommittente.addNewDatiAnagrafici();
+				myDatiAnagrafici1.addNewIdFiscaleIVA().setIdPaese(clienteIva.substring(0, 2));
+				myDatiAnagrafici1.getIdFiscaleIVA().setIdCodice(clienteIva.substring(2));
+				myDatiAnagrafici1.addNewAnagrafica().setDenominazione(clienteDenominazione);
+				IndirizzoType mySede1 = myCessionarioCommittente.addNewSede();
+				mySede1.setIndirizzo(clienteIndirizzo);
+				mySede1.setCAP(clienteCap);
+				mySede1.setComune(clienteCitta);
+				mySede1.setProvincia(clienteProvincia);
+				mySede1.setNazione(clienteIva.substring(0, 2));
+			    
+			    
 			  }
 			
 			
