@@ -130,17 +130,18 @@ public class App
 //		fileChooser.getExtensionFilters().addAll(
 //			new ExtensionFilter("PDF Files", "*.pdf"));
 		fileChooser.setTitle("Select MDB files");
-		fileChooser.setInitialDirectory(new File("C:\\gestione\\REPORTS"));
+		File cartella =  new File("C:\\gestione\\REPORTS");
+		if (cartella.exists()) {
+			fileChooser.setInitialDirectory(cartella);
+		}
 		fileChooser.getExtensionFilters().addAll(
 			new ExtensionFilter("MDB Files", "*.mdb"));
-		
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(savedStage);
 
 		if (selectedFiles != null) {
 
-			// aprire mdb scelto
+			/*// aprire mdb scelto
 			try {
-//				Database db = DatabaseBuilder.open(new File("C:\\GESTIONE\\REPORTS\\" + selectedFiles.get(0).getName()));
 				Database db = DatabaseBuilder.open(selectedFiles.get(0));
 				System.out.println(db.getFileFormat());
 				Set<String> tableNames = db.getTableNames();
@@ -148,16 +149,15 @@ public class App
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			// creare xml
+			}*/
 			
+			// creare xml
 			FatturaWriteXML.WriteFile(selectedFiles.get(0));
 			
 			//FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
-			
-			
-//			actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " +
-//					selectedFiles.get(0).getName() + "..");
+						
+			actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " +
+					selectedFiles.get(0).getName() + "..");
 		}
 		else {
 			actionStatus.setText("File selection cancelled.");
