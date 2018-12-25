@@ -15,6 +15,8 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
+import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.DataFatturaTypeImpl;
+import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.FormatoTrasmissioneTypeImpl;
 
 public class FatturaWriteXML {
 
@@ -26,6 +28,21 @@ public class FatturaWriteXML {
 			for (Row row : table) {
 				System.out.println("Look ma, a row: " + row);
 
+				// Recupero dati cliente
+				String cliente = row.getString("CodiceCliente");
+				String clienteDenominazione = row.getString("RagioneSociale1");
+				String clienteIva = row.getString("PartitaIva");
+				String clienteIndirizzo = row.getString("Indirizzo");
+				String clienteCap = row.getString("CAP");
+				String clienteCitta = row.getString("Citta");
+				String clienteProvincia = row.getString("Provincia");
+				Date dataDocumento = row.getDate("DataDocumento");
+				String clienteNFattura = Integer.toString(row.getShort("NumeroDocumento"));
+
+				
+				String codiceDestinatario = Integer.toString(row.getShort("NumeroDocumento"));
+
+				
 				// Nuova Fattura 
 				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance();
 				FatturaElettronicaType myFatturaElettronica = myDoc.addNewFatturaElettronica();
@@ -33,6 +50,14 @@ public class FatturaWriteXML {
 						.addNewFatturaElettronicaHeader();
 				
 				// manca DatiTrasmissione
+				DatiTrasmissioneType myDatiTrasmissioneType = myFatturaElettronicaHeader.addNewDatiTrasmissione();
+				myDatiTrasmissioneType.addNewIdTrasmittente().setIdPaese("IT");
+				myDatiTrasmissioneType.getIdTrasmittente().setIdCodice("01808360026");
+				myDatiTrasmissioneType.setProgressivoInvio(clienteNFattura);
+				myDatiTrasmissioneType.setFormatoTrasmissione(FormatoTrasmissioneType.FPR_12);
+				myDatiTrasmissioneType.setCodiceDestinatario(codiceDestinatario);
+				myDatiTrasmissioneType.addNewContattiTrasmittente().setTelefono("015666253");
+				myDatiTrasmissioneType.getContattiTrasmittente().setEmail("info@siletti.it");
 
 				// CedentePrestatore
 				CedentePrestatoreType myCedentePrestatore = myFatturaElettronicaHeader.addNewCedentePrestatore();
@@ -48,19 +73,6 @@ public class FatturaWriteXML {
 				mySede.setProvincia("BI");
 				mySede.setNazione("IT");
 
-				// cliente
-				String cliente = row.getString("CodiceCliente");
-				String clienteDenominazione = row.getString("RagioneSociale1");
-				String clienteIva = row.getString("PartitaIva");
-				String clienteIndirizzo = row.getString("Indirizzo");
-				String clienteCap = row.getString("CAP");
-				String clienteCitta = row.getString("Citta");
-				String clienteProvincia = row.getString("Provincia");
-				Date date = row.getDate("DataDocumento");
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(date);		
-				
-				String clienteNFattura = Integer.toString(row.getShort("NumeroDocumento"));
 
 				CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader
 						.addNewCessionarioCommittente();
@@ -80,12 +92,28 @@ public class FatturaWriteXML {
 						.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
-						
+				
+				//System.out.println(dataDocumento);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dataDocumento);		
+				//System.out.println(cal);
+				//DataFatturaType dataf = DataFatturaType.Factory.newInstance(); 
+				//dataf.setDateValue(date);
+				//myDatiGeneraliDocumento.xsetData(dataf);
 				myDatiGeneraliDocumento.setData(cal);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
-
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				//String fileNameNew = fatture.get + cal.get(Calendar.YEAR) + Calendar.MONTH +Calendar.DAY_OF_MONTH+"-"+clienteNFattura +".xml";
-				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR) + cal.get(Calendar.MONTH) + cal.get(Calendar.DAY_OF_MONTH) + "-"+clienteNFattura +".xml";
+				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+clienteNFattura + "-"+cliente  +".xml";
 				File file = new File(fileNameNew);
 				try {
 					myDoc.save(file);
