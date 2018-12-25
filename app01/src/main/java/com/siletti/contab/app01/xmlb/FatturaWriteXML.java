@@ -38,10 +38,8 @@ public class FatturaWriteXML {
 				String clienteProvincia = row.getString("Provincia");
 				Date dataDocumento = row.getDate("DataDocumento");
 				String clienteNFattura = Integer.toString(row.getShort("NumeroDocumento"));
-
-				
-				String codiceDestinatario = Integer.toString(row.getShort("NumeroDocumento"));
-
+				String codiceDestinatario = row.getString("Vettore3");
+				String pecDestinatario = row.getString("Vettore2");
 				
 				// Nuova Fattura 
 				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance();
@@ -49,13 +47,17 @@ public class FatturaWriteXML {
 				FatturaElettronicaHeaderType myFatturaElettronicaHeader = myFatturaElettronica
 						.addNewFatturaElettronicaHeader();
 				
-				// manca DatiTrasmissione
+				// DatiTrasmissione
 				DatiTrasmissioneType myDatiTrasmissioneType = myFatturaElettronicaHeader.addNewDatiTrasmissione();
 				myDatiTrasmissioneType.addNewIdTrasmittente().setIdPaese("IT");
 				myDatiTrasmissioneType.getIdTrasmittente().setIdCodice("01808360026");
 				myDatiTrasmissioneType.setProgressivoInvio(clienteNFattura);
 				myDatiTrasmissioneType.setFormatoTrasmissione(FormatoTrasmissioneType.FPR_12);
-				myDatiTrasmissioneType.setCodiceDestinatario(codiceDestinatario);
+				if (!codiceDestinatario.isEmpty()) {
+					myDatiTrasmissioneType.setCodiceDestinatario(codiceDestinatario);
+				} else {
+					myDatiTrasmissioneType.setPECDestinatario(pecDestinatario);
+				}
 				myDatiTrasmissioneType.addNewContattiTrasmittente().setTelefono("015666253");
 				myDatiTrasmissioneType.getContattiTrasmittente().setEmail("info@siletti.it");
 
@@ -102,10 +104,6 @@ public class FatturaWriteXML {
 				//myDatiGeneraliDocumento.xsetData(dataf);
 				myDatiGeneraliDocumento.setData(cal);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
-				
-				
-				
-				
 				
 				
 				
