@@ -1,6 +1,6 @@
 package com.siletti.contab.app01;
 import com.siletti.contab.app01.xmlb.FatturaWriteXML;
-import com.siletti.contab.stax.*;
+//import com.siletti.contab.stax.*;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -19,12 +19,10 @@ import javafx.geometry.Insets;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import java.io.File;
-import java.io.IOException;
+//import java.io.IOException;
 import java.util.List;
-import java.util.Set;
+//import java.util.Set;
 
-import com.healthmarketscience.jackcess.Database;
-import com.healthmarketscience.jackcess.DatabaseBuilder;
 
 public class App
         extends Application {
@@ -152,12 +150,12 @@ public class App
 			}*/
 			
 			// creare xml
-			FatturaWriteXML.WriteFile(selectedFiles.get(0));
+			String risultato = FatturaWriteXML.WriteFile(selectedFiles.get(0));
 			
 			//FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
 						
-			actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " +
-					selectedFiles.get(0).getName() + "..");
+			actionStatus.setText(risultato);
+			//actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " + selectedFiles.get(0).getName() + "..");
 		}
 		else {
 			actionStatus.setText("File selection cancelled.");

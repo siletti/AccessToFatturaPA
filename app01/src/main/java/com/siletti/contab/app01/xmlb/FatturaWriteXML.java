@@ -1,13 +1,18 @@
 package com.siletti.contab.app01.xmlb;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
@@ -15,20 +20,17 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
-import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.DataFatturaTypeImpl;
-import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.FormatoTrasmissioneTypeImpl;
 
 public class FatturaWriteXML {
 
-	public static void WriteFile(File fatture) {
-
+	public static String WriteFile(File fatture) {
+		String risultato = "";
 		try (Database db = DatabaseBuilder.open(fatture);) {
 
 			Table table = db.getTable("tmpTesta");
 			for (Row row : table) {
-				System.out.println("Look ma, a row: " + row);
-
-				// Recupero dati cliente
+				//	System.out.println("Look ma, a row: " + row);
+				// Recupero dati 
 				String cliente = row.getString("CodiceCliente");
 				String clienteDenominazione = row.getString("RagioneSociale1");
 				String clienteIva = row.getString("PartitaIva");
@@ -37,15 +39,20 @@ public class FatturaWriteXML {
 				String clienteCitta = row.getString("Citta");
 				String clienteProvincia = row.getString("Provincia");
 				Date dataDocumento = row.getDate("DataDocumento");
-				String clienteNFattura = Integer.toString(row.getShort("NumeroDocumento"));
+				Short NumeroDocumento = row.getShort("NumeroDocumento");
+				String clienteNFattura = Integer.toString(NumeroDocumento);
 				String codiceDestinatario = row.getString("Vettore3");
 				String pecDestinatario = row.getString("Vettore2");
+				String sconto = row.getString("Sconto");
+				
 				
 				// Nuova Fattura 
-				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance();
+				XmlOptions options = new XmlOptions();
+				options.put( XmlOptions.SAVE_PRETTY_PRINT );
+				options.put( XmlOptions.SAVE_PRETTY_PRINT_INDENT, 3 );
+				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance(options);
 				FatturaElettronicaType myFatturaElettronica = myDoc.addNewFatturaElettronica();
-				FatturaElettronicaHeaderType myFatturaElettronicaHeader = myFatturaElettronica
-						.addNewFatturaElettronicaHeader();
+				FatturaElettronicaHeaderType myFatturaElettronicaHeader = myFatturaElettronica.addNewFatturaElettronicaHeader();
 				
 				// DatiTrasmissione
 				DatiTrasmissioneType myDatiTrasmissioneType = myFatturaElettronicaHeader.addNewDatiTrasmissione();
@@ -55,8 +62,10 @@ public class FatturaWriteXML {
 				myDatiTrasmissioneType.setFormatoTrasmissione(FormatoTrasmissioneType.FPR_12);
 				if (!codiceDestinatario.isEmpty()) {
 					myDatiTrasmissioneType.setCodiceDestinatario(codiceDestinatario);
-				} else {
+				} else if (!pecDestinatario.isEmpty()){
 					myDatiTrasmissioneType.setPECDestinatario(pecDestinatario);
+				} else {
+					return "Manca Codice e Pec Destinatario";
 				}
 				myDatiTrasmissioneType.addNewContattiTrasmittente().setTelefono("015666253");
 				myDatiTrasmissioneType.getContattiTrasmittente().setEmail("info@siletti.it");
@@ -75,9 +84,8 @@ public class FatturaWriteXML {
 				mySede.setProvincia("BI");
 				mySede.setNazione("IT");
 
-
-				CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader
-						.addNewCessionarioCommittente();
+				// CessionarioCommittente
+				CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader.addNewCessionarioCommittente();
 				DatiAnagraficiCessionarioType myDatiAnagrafici1 = myCessionarioCommittente.addNewDatiAnagrafici();
 				myDatiAnagrafici1.addNewIdFiscaleIVA().setIdPaese(clienteIva.substring(0, 2));
 				myDatiAnagrafici1.getIdFiscaleIVA().setIdCodice(clienteIva.substring(2));
@@ -88,45 +96,61 @@ public class FatturaWriteXML {
 				mySede1.setComune(clienteCitta);
 				mySede1.setProvincia(clienteProvincia);
 				mySede1.setNazione(clienteIva.substring(0, 2));
-
+				
+				// FatturaElettronicaBody
 				FatturaElettronicaBodyType myBody = myFatturaElettronica.addNewFatturaElettronicaBody();
 				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myBody.addNewDatiGenerali()
 						.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
-				
-				//System.out.println(dataDocumento);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dataDocumento);		
-				//System.out.println(cal);
-				//DataFatturaType dataf = DataFatturaType.Factory.newInstance(); 
-				//dataf.setDateValue(date);
-				//myDatiGeneraliDocumento.xsetData(dataf);
 				myDatiGeneraliDocumento.setData(cal);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
 				
+
 				
 				
 				
+				// cambio foglio stile etc
 				
-				
-				//String fileNameNew = fatture.get + cal.get(Calendar.YEAR) + Calendar.MONTH +Calendar.DAY_OF_MONTH+"-"+clienteNFattura +".xml";
-				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+clienteNFattura + "-"+cliente  +".xml";
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				myDoc.save(stream,options);
+				String myDocString = new String(stream.toByteArray());
+				String regex = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testaold.xml")), StandardCharsets.UTF_8);
+				String replacement = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testa.xml")), StandardCharsets.UTF_8);
+				String myDocCorretto = myDocString.replace(regex, replacement);
+
+				// Salva file finale
+				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+String.format("%04d", NumeroDocumento) + "-"+cliente  +".xml";
 				File file = new File(fileNameNew);
+				try {    
+			           FileWriter fw=new FileWriter(file);    
+			           fw.write(myDocCorretto);    
+			           fw.close();
+			           risultato = "OK: " + fileNameNew;
+			         } catch(Exception e){
+			        	 System.out.println(e);
+			        	 risultato = e.getMessage();
+			        	 }   
+				
+				/*
 				try {
 					myDoc.save(file);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+				} catch (IOException e) {e.printStackTrace();}
+*/
+				
+				
+				
+				
 			}
 
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
+			risultato = e.getMessage();
 		}
-
+		return risultato;
 	}
 
 	public static XmlObject parseXml(String xmlFilePath) {
