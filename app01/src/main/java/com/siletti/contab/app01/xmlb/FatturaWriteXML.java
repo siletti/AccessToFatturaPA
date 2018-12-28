@@ -4,16 +4,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
+import com.healthmarketscience.jackcess.Cursor;
+import com.healthmarketscience.jackcess.CursorBuilder;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
@@ -30,6 +39,7 @@ public class FatturaWriteXML {
 			Table table = db.getTable("tmpTesta");
 			for (Row row : table) {
 				//	System.out.println("Look ma, a row: " + row);
+				
 				// Recupero dati 
 				String cliente = row.getString("CodiceCliente");
 				String clienteDenominazione = row.getString("RagioneSociale1");
@@ -44,6 +54,35 @@ public class FatturaWriteXML {
 				String codiceDestinatario = row.getString("Vettore3");
 				String pecDestinatario = row.getString("Vettore2");
 				String sconto = row.getString("Sconto");
+					// dati ddt per ogni fattura
+				Table table2 = db.getTable("DatiDDT");
+				Cursor cursor = CursorBuilder.createCursor(table2);
+				Map<List<Object>, List<Integer>> datiDDT = new HashMap<>();
+				while (cursor.findNextRow(Collections.singletonMap("NumeroFattura", NumeroDocumento))) {
+				    Row row2 = cursor.getCurrentRow();
+				    List<Object> key = new ArrayList<>();
+				    key.add(row2.getString("NumeroDDT"));
+				    key.add(row2.getDate("DataDDT"));
+				    Integer riferimentoNumeroLinea = (int) row2.getShort("RiferimentoNumeroLinea");
+				    List<Integer> value =new ArrayList<>();
+				    value.add(riferimentoNumeroLinea);
+				  //  List<String> list = Arrays.asList("one", "two", "three")
+				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
+				    if (value2!=null) {
+				    	value2.add(riferimentoNumeroLinea);
+				    
+				    }
+				    
+				    System.out.println(String.format(
+				            "Numero='%s', Data='%s', Riga='%s'.",
+				            row2.get("NumeroDDT"), 
+				            row2.get("DataDDT"),
+				            row2.get("RiferimentoNumeroLinea")
+				            ));
+				}
+				
+				
+				
 				
 				
 				// Nuova Fattura 
@@ -98,22 +137,45 @@ public class FatturaWriteXML {
 				mySede1.setNazione(clienteIva.substring(0, 2));
 				
 				// FatturaElettronicaBody
-				FatturaElettronicaBodyType myBody = myFatturaElettronica.addNewFatturaElettronicaBody();
-				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myBody.addNewDatiGenerali()
-						.addNewDatiGeneraliDocumento();
+				FatturaElettronicaBodyType myFatturaElettronicaBody = myFatturaElettronica.addNewFatturaElettronicaBody();
+				DatiGeneraliType myDatiGenerali = myFatturaElettronicaBody.addNewDatiGenerali();
+					// DatiGeneraliDocumento
+				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myDatiGenerali.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dataDocumento);		
 				myDatiGeneraliDocumento.setData(cal);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
+				if ( !sconto.isEmpty()  ) {
+					double scontoD = Double.parseDouble(sconto);
+					ScontoMaggiorazioneType scontoMaggiorazione = myDatiGeneraliDocumento.addNewScontoMaggiorazione();
+					scontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
+					scontoMaggiorazione.setPercentuale(BigDecimal.valueOf(scontoD));
+				}
+					// 2.1.8   <DatiDDT>
 				
-
+				datiDDT.forEach((k, e) -> {
+					DatiDDTType myDatiDDT = myDatiGenerali.addNewDatiDDT();
+					myDatiDDT.setNumeroDDT((String) k.get(0));
+					cal.setTime((Date) k.get(1));		
+					myDatiDDT.setDataDDT(cal);
+					Integer[] array = e.toArray(new Integer[e.size()]);
+					int[] intArray = Arrays.stream(array).mapToInt(Integer::intValue).toArray();
+					myDatiDDT.setRiferimentoNumeroLineaArray(intArray);
+		        });
 				
 				
 				
-				// cambio foglio stile etc
 				
+				// DatiBeniServizi
+				DatiBeniServiziType myDatiBeniServizi = myFatturaElettronicaBody.addNewDatiBeniServizi();
+				DettaglioLineeType DettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+				
+				
+				
+				
+				// Aggiunta foglio stile etc
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				myDoc.save(stream,options);
 				String myDocString = new String(stream.toByteArray());
