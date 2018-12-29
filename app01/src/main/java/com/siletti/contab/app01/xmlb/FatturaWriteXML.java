@@ -29,6 +29,7 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
+import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.CodiceArticoloTypeImpl;
 
 public class FatturaWriteXML {
 
@@ -55,13 +56,13 @@ public class FatturaWriteXML {
 				String codiceDestinatario = row.getString("Vettore3");
 				String pecDestinatario = row.getString("Vettore2");
 				String sconto = row.getString("Sconto");
-				Integer chiaveFattura = row.getInt("ChiaveDocumento");
+				Integer chiaveDocumento = row.getInt("ChiaveDocumento");
 				
 				//System.out.println("NumeroDocumento: "+ NumeroDocumento + "  chiave: "+ chiaveFattura);
-					// dati ddt per ogni fattura
+					// Recupero ddt per ogni riga/fattura in: 	Map<List<Object>, List<Integer>> datiDDT
+				Map<List<Object>, List<Integer>> datiDDT = new HashMap<>();
 				Table table2 = db.getTable("DatiDDT");
 				Cursor cursor = CursorBuilder.createCursor(table2);
-				Map<List<Object>, List<Integer>> datiDDT = new HashMap<>();
 				while (cursor.findNextRow(Collections.singletonMap("NumeroFattura", NumeroDocumento))) {
 				    Row row2 = cursor.getCurrentRow();
 				    List<Object> key = new ArrayList<>();
@@ -72,19 +73,9 @@ public class FatturaWriteXML {
 				    value.add(riferimentoNumeroLinea);
 				  //  List<String> list = Arrays.asList("one", "two", "three")
 				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
-				    if (value2!=null) {
-				    	value2.add(riferimentoNumeroLinea);
-				    }
-				    
-				    System.out.println(String.format(
-				            "Numero='%s', Data='%s', Riga='%s'.",
-				            row2.get("NumeroDDT"), 
-				            row2.get("DataDDT"),
-				            row2.get("RiferimentoNumeroLinea")
-				            ));
+				    if (value2!=null) {value2.add(riferimentoNumeroLinea);}
 				}
-				
-				
+				// Recupero 2.2 <DatiBeniServizi>						
 				
 				
 				
@@ -170,7 +161,44 @@ public class FatturaWriteXML {
 				// 2.2   <DatiBeniServizi>						
 				DatiBeniServiziType myDatiBeniServizi = myFatturaElettronicaBody.addNewDatiBeniServizi();
 				//2.2.1   <DettaglioLinee>					
-				DettaglioLineeType DettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+				Table table3 = db.getTable("tmpCorpo");
+				Cursor cursor3 = CursorBuilder.createCursor(table3);
+				int numeroLinea = 1; 
+				while (cursor3.findNextRow(Collections.singletonMap("ChiaveDocumento", chiaveDocumento))) {
+					Row row3 = cursor3.getCurrentRow();
+					String uMisura = row3.getString("UnitaMisura");
+					if (!uMisura.isEmpty()) {
+						DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+						dettaglioLinee.setNumeroLinea(numeroLinea);
+						numeroLinea++;
+						CodiceArticoloType codiceArticolo = dettaglioLinee.addNewCodiceArticolo();
+						codiceArticolo.setCodiceTipo("Interno");
+						codiceArticolo.setCodiceValore(row3.getString("Codice"));
+						dettaglioLinee.setDescrizione(row3.getString("Descrizione1"));
+						if (uMisura.equals("Mt")) {
+							dettaglioLinee.setQuantita(row3.getBigDecimal("Metri"));
+							dettaglioLinee.setUnitaMisura(uMisura);
+						} else if (uMisura.equals("Capi")) {
+							//BigDecimal d = new BigDecimal(val);
+							dettaglioLinee.setQuantita(new BigDecimal(row3.getShort("Capi").toString()));
+						} else {
+							return "FAT."+ clienteNFattura + " UnitaMisura Error";
+						}
+						dettaglioLinee.setPrezzoUnitario(row3.getBigDecimal("Prezzo"));
+					}
+				    /*
+				    List<Object> key = new ArrayList<>();
+				    key.add(row3.getString("NumeroDDT"));
+				    key.add(row3.getDate("DataDDT"));
+				    Integer riferimentoNumeroLinea = (int) row3.getShort("RiferimentoNumeroLinea");
+				    List<Integer> value =new ArrayList<>();
+				    value.add(riferimentoNumeroLinea);
+				  //  List<String> list = Arrays.asList("one", "two", "three")
+				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
+				    if (value2!=null) {value2.add(riferimentoNumeroLinea);}*/
+				}
+
+				
 				
 				
 				
@@ -190,7 +218,8 @@ public class FatturaWriteXML {
 			           FileWriter fw=new FileWriter(file);    
 			           fw.write(myDocCorretto);    
 			           fw.close();
-			           risultato = "OK: " + fileNameNew;
+			           risultato += fileNameNew;
+			           risultato += "\r\n";
 			         } catch(Exception e){
 			        	 System.out.println(e);
 			        	 risultato = e.getMessage();

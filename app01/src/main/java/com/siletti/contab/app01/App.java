@@ -69,12 +69,12 @@ public class App
 
 		// Vbox
 		VBox vbox = new VBox(30);
-		vbox.setPadding(new Insets(25, 25, 25, 25));;
+		vbox.setPadding(new Insets(25, 10, 10, 10));;
 //		vbox.getChildren().addAll(labelHb, buttonHb1, buttonHb2, actionStatus);
 		vbox.getChildren().addAll(labelHb, buttonHb2,  actionStatus);
 
 		// Scene
-		Scene scene = new Scene(vbox, 500, 300); // w x h
+		Scene scene = new Scene(vbox, 600, 400); // w x h
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
@@ -138,16 +138,6 @@ public class App
 
 		if (selectedFiles != null) {
 
-			/*// aprire mdb scelto
-			try {
-				Database db = DatabaseBuilder.open(selectedFiles.get(0));
-				System.out.println(db.getFileFormat());
-				Set<String> tableNames = db.getTableNames();
-				tableNames.stream().forEach(element -> System.out.println(element));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
 			
 			// creare xml
 			String risultato = FatturaWriteXML.WriteFile(selectedFiles.get(0));
