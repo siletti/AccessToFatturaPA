@@ -38,7 +38,8 @@ public class FatturaWriteXML {
 
 			Table table = db.getTable("tmpTesta");
 			for (Row row : table) {
-				//	System.out.println("Look ma, a row: " + row);
+				// Per ogni fattura
+				//System.out.println("Look ma, a row: " + row);
 				
 				// Recupero dati 
 				String cliente = row.getString("CodiceCliente");
@@ -54,6 +55,9 @@ public class FatturaWriteXML {
 				String codiceDestinatario = row.getString("Vettore3");
 				String pecDestinatario = row.getString("Vettore2");
 				String sconto = row.getString("Sconto");
+				Integer chiaveFattura = row.getInt("ChiaveDocumento");
+				
+				//System.out.println("NumeroDocumento: "+ NumeroDocumento + "  chiave: "+ chiaveFattura);
 					// dati ddt per ogni fattura
 				Table table2 = db.getTable("DatiDDT");
 				Cursor cursor = CursorBuilder.createCursor(table2);
@@ -70,7 +74,6 @@ public class FatturaWriteXML {
 				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
 				    if (value2!=null) {
 				    	value2.add(riferimentoNumeroLinea);
-				    
 				    }
 				    
 				    System.out.println(String.format(
@@ -154,7 +157,6 @@ public class FatturaWriteXML {
 					scontoMaggiorazione.setPercentuale(BigDecimal.valueOf(scontoD));
 				}
 					// 2.1.8   <DatiDDT>
-				
 				datiDDT.forEach((k, e) -> {
 					DatiDDTType myDatiDDT = myDatiGenerali.addNewDatiDDT();
 					myDatiDDT.setNumeroDDT((String) k.get(0));
@@ -165,11 +167,9 @@ public class FatturaWriteXML {
 					myDatiDDT.setRiferimentoNumeroLineaArray(intArray);
 		        });
 				
-				
-				
-				
-				// DatiBeniServizi
+				// 2.2   <DatiBeniServizi>						
 				DatiBeniServiziType myDatiBeniServizi = myFatturaElettronicaBody.addNewDatiBeniServizi();
+				//2.2.1   <DettaglioLinee>					
 				DettaglioLineeType DettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
 				
 				
