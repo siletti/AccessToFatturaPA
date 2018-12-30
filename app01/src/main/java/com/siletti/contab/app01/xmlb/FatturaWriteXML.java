@@ -80,31 +80,17 @@ public class FatturaWriteXML {
 				// Recupero 2.2.2   <DatiRiepilogo> 
 			    List<Map<String , String>> datiRiepilogo  = new ArrayList<Map<String,String>>();
 			    for(int i=1; i<7; i++){
-			    		//String string = row.getBigDecimal("rAliquota"+i).toPlainString();
 			    		Map<String,String> myMap1 = new HashMap<String, String>();
 			    		myMap1.put("rAliquota", row.getBigDecimal("rAliquota"+i).toPlainString());
 			    		myMap1.put("rImponibile", row.getBigDecimal("rImponibile"+i).toPlainString());
 			    		myMap1.put("rImposta", row.getBigDecimal("rImposta"+i).toPlainString());
-			    		//System.out.println(string);
-
-			    		
-			    		
+			    		myMap1.put("rDescrizione", row.getString("rDescrizione"+i));
+			    		myMap1.put("rSpeseAcc", row.getBigDecimal("rSpeseAccessorie"+i).toPlainString());
+			    		myMap1.put("rCodiceIva", row.getString("rCodiceIva"+i));
 			    		datiRiepilogo.add(i-1,myMap1);
 			    }
 
-			    System.out.println(datiRiepilogo);
 
-//			    for (Map<String, String> map : datiRiepilogo) {
-//			        System.out.println(map.get("rAliquota"));
-//			    }
-//				
-				
-				// ---------------------
-//				BigDecimal riepilogoIva = new BigDecimal(row.getString("rAliquota1"));
-//				myDatiRiepilogo.setAliquotaIVA(iva);
-//				if (ivaR.compareTo(BigDecimal.ZERO) == 0) {
-//					dettaglioLinee.setNatura(NaturaType.N_3);
-//				}
 
 				
 				
@@ -224,7 +210,39 @@ public class FatturaWriteXML {
 				}
 
 				// 2.2.2   <DatiRiepilogo>					
-				
+			    for (Map<String, String> map : datiRiepilogo) {
+			    		if(map.get("rCodiceIva").isEmpty()) {continue;}
+			    		BigDecimal imponibile = new BigDecimal(map.get("rImponibile"));
+			    		BigDecimal aliquota = new BigDecimal(map.get("rAliquota"));
+			    		if (imponibile.compareTo(BigDecimal.ZERO) == 1) {
+			    			DatiRiepilogoType datiR = myDatiBeniServizi.addNewDatiRiepilogo();
+			    			datiR.setImponibileImporto(imponibile);
+			    			datiR.setAliquotaIVA(aliquota);
+			    			datiR.setSpeseAccessorie(new BigDecimal(map.get("rSpeseAcc")));
+			    			datiR.setImponibileImporto(new BigDecimal(map.get("rImponibile")));
+			    			datiR.setImposta(new BigDecimal(map.get("rImposta")));
+			    			if ( aliquota.compareTo(BigDecimal.ZERO) == 0 ) {
+			    				if(map.get("rCodiceIva").equals("41")) {
+			    					datiR.setNatura(NaturaType.N_3);
+			    					datiR.setRiferimentoNormativo("Cessioni Intra CEE (Inversione contabile)");
+			    				} else 
+			    				if(map.get("rCodiceIva").equals("41")) {
+			    					datiR.setNatura(NaturaType.N_3);
+			    					datiR.setRiferimentoNormativo("Cessioni Intra CEE (Inversione contabile)");
+			    				}
+
+			    			}
+			    			
+			    		
+			    			
+			    			datiR.setRiferimentoNormativo(map.get("rDescrizione"));
+						
+			    			
+			    		}
+			    	
+			    	
+			    	System.out.println(map.get("rAliquota"));
+			    }
 				
 				
 				
