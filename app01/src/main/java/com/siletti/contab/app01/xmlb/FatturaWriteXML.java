@@ -204,7 +204,13 @@ public class FatturaWriteXML {
 						BigDecimal iva = new BigDecimal(row3.getString("DescIva"));
 						dettaglioLinee.setAliquotaIVA(iva);
 						if (iva.compareTo(BigDecimal.ZERO) == 0) {
-							dettaglioLinee.setNatura(NaturaType.N_3);
+							if(row3.getString("CodiceIva").equals("41")) {
+		    						dettaglioLinee.setNatura(NaturaType.N_3);
+							} else 
+							if(row3.getString("CodiceIva").equals("8")) {
+								dettaglioLinee.setNatura(NaturaType.N_2);
+		    					} 
+							else return "FAT."+ clienteNFattura + " Cod.Iva non riconosciuto";
 						}
 					}
 				}
@@ -222,26 +228,15 @@ public class FatturaWriteXML {
 			    			datiR.setImponibileImporto(new BigDecimal(map.get("rImponibile")));
 			    			datiR.setImposta(new BigDecimal(map.get("rImposta")));
 			    			if ( aliquota.compareTo(BigDecimal.ZERO) == 0 ) {
+			    				datiR.setRiferimentoNormativo(map.get("rDescrizione"));
 			    				if(map.get("rCodiceIva").equals("41")) {
 			    					datiR.setNatura(NaturaType.N_3);
-			    					datiR.setRiferimentoNormativo("Cessioni Intra CEE (Inversione contabile)");
 			    				} else 
-			    				if(map.get("rCodiceIva").equals("41")) {
-			    					datiR.setNatura(NaturaType.N_3);
-			    					datiR.setRiferimentoNormativo("Cessioni Intra CEE (Inversione contabile)");
-			    				}
-
-			    			}
-			    			
-			    		
-			    			
-			    			datiR.setRiferimentoNormativo(map.get("rDescrizione"));
-						
-			    			
+			    				if(map.get("rCodiceIva").equals("8")) {
+			    					datiR.setNatura(NaturaType.N_2);
+			    				} else return "FAT."+ clienteNFattura + " campo Natura? Cod.Iva: "+map.get("rCodiceIva")+" non riconosciuto";
+			    			} else datiR.setEsigibilitaIVA(EsigibilitaIVAType.I);
 			    		}
-			    	
-			    	
-			    	System.out.println(map.get("rAliquota"));
 			    }
 				
 				
