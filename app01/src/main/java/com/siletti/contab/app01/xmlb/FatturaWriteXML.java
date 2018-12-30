@@ -29,7 +29,6 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
-import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.impl.CodiceArticoloTypeImpl;
 
 public class FatturaWriteXML {
 
@@ -76,7 +75,37 @@ public class FatturaWriteXML {
 				    if (value2!=null) {value2.add(riferimentoNumeroLinea);}
 				}
 				// Recupero 2.2 <DatiBeniServizi>						
+
+
+				// Recupero 2.2.2   <DatiRiepilogo> 
+			    List<Map<String , String>> datiRiepilogo  = new ArrayList<Map<String,String>>();
+			    for(int i=1; i<7; i++){
+			    		//String string = row.getBigDecimal("rAliquota"+i).toPlainString();
+			    		Map<String,String> myMap1 = new HashMap<String, String>();
+			    		myMap1.put("rAliquota", row.getBigDecimal("rAliquota"+i).toPlainString());
+			    		myMap1.put("rImponibile", row.getBigDecimal("rImponibile"+i).toPlainString());
+			    		myMap1.put("rImposta", row.getBigDecimal("rImposta"+i).toPlainString());
+			    		//System.out.println(string);
+
+			    		
+			    		
+			    		datiRiepilogo.add(i-1,myMap1);
+			    }
+
+			    System.out.println(datiRiepilogo);
+
+//			    for (Map<String, String> map : datiRiepilogo) {
+//			        System.out.println(map.get("rAliquota"));
+//			    }
+//				
 				
+				// ---------------------
+//				BigDecimal riepilogoIva = new BigDecimal(row.getString("rAliquota1"));
+//				myDatiRiepilogo.setAliquotaIVA(iva);
+//				if (ivaR.compareTo(BigDecimal.ZERO) == 0) {
+//					dettaglioLinee.setNatura(NaturaType.N_3);
+//				}
+
 				
 				
 				// Nuova Fattura 
@@ -185,20 +214,16 @@ public class FatturaWriteXML {
 							return "FAT."+ clienteNFattura + " UnitaMisura Error";
 						}
 						dettaglioLinee.setPrezzoUnitario(row3.getBigDecimal("Prezzo"));
+						dettaglioLinee.setPrezzoTotale(row3.getBigDecimal("Importo"));
+						BigDecimal iva = new BigDecimal(row3.getString("DescIva"));
+						dettaglioLinee.setAliquotaIVA(iva);
+						if (iva.compareTo(BigDecimal.ZERO) == 0) {
+							dettaglioLinee.setNatura(NaturaType.N_3);
+						}
 					}
-				    /*
-				    List<Object> key = new ArrayList<>();
-				    key.add(row3.getString("NumeroDDT"));
-				    key.add(row3.getDate("DataDDT"));
-				    Integer riferimentoNumeroLinea = (int) row3.getShort("RiferimentoNumeroLinea");
-				    List<Integer> value =new ArrayList<>();
-				    value.add(riferimentoNumeroLinea);
-				  //  List<String> list = Arrays.asList("one", "two", "three")
-				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
-				    if (value2!=null) {value2.add(riferimentoNumeroLinea);}*/
 				}
 
-				
+				// 2.2.2   <DatiRiepilogo>					
 				
 				
 				
