@@ -39,7 +39,7 @@ public class FatturaWriteXML {
 			Table table = db.getTable("tmpTesta");
 			for (Row row : table) {
 				// Per ogni fattura
-				//System.out.println("Look ma, a row: " + row);
+				//System.out.println("Look a row: " + row);
 				
 				// Recupero dati 
 				String cliente = row.getString("CodiceCliente");
@@ -55,11 +55,18 @@ public class FatturaWriteXML {
 				String clienteNFattura = Integer.toString(NumeroDocumento);
 				String codiceDestinatario = row.getString("Vettore3");
 				String pecDestinatario = row.getString("Vettore2");
-				String sconto = row.getString("Sconto");
 				Integer chiaveDocumento = row.getInt("ChiaveDocumento");
 				
-				//System.out.println("NumeroDocumento: "+ NumeroDocumento + "  chiave: "+ chiaveFattura);
-					// Recupero ddt per ogni riga/fattura in: 	Map<List<Object>, List<Integer>> datiDDT
+				String sconto = row.getString("Sconto");
+				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
+				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
+				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
+				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
+				BigDecimal trasporto = row.getBigDecimal("Trasporto"); 
+				BigDecimal varie = row.getBigDecimal("Varie"); 
+				BigDecimal esenti = row.getBigDecimal("Esenti"); 
+				
+				// Recupero 2.1.8   <DatiDDT> per ogni riga/fattura 
 				Map<List<Object>, List<Integer>> datiDDT = new HashMap<>();
 				Table table2 = db.getTable("DatiDDT");
 				Cursor cursor = CursorBuilder.createCursor(table2);
@@ -71,7 +78,6 @@ public class FatturaWriteXML {
 				    Integer riferimentoNumeroLinea = (int) row2.getShort("RiferimentoNumeroLinea");
 				    List<Integer> value =new ArrayList<>();
 				    value.add(riferimentoNumeroLinea);
-				  //  List<String> list = Arrays.asList("one", "two", "three")
 				    List<Integer> value2= datiDDT.putIfAbsent(key, value);
 				    if (value2!=null) {value2.add(riferimentoNumeroLinea);}
 				}
@@ -219,7 +225,10 @@ public class FatturaWriteXML {
 						}
 					}
 				}
-
+				// SPESE DI TRASPORTO
+				
+				
+				
 				// 2.2.2   <DatiRiepilogo>					
 			    for (Map<String, String> map : datiRiepilogo) {
 			    		if(map.get("rCodiceIva").trim().isEmpty()) {continue;}
