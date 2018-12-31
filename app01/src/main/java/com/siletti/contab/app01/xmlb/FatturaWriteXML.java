@@ -45,6 +45,7 @@ public class FatturaWriteXML {
 				String cliente = row.getString("CodiceCliente");
 				String clienteDenominazione = row.getString("RagioneSociale1");
 				String clienteIva = row.getString("PartitaIva");
+				String clienteNazione = clienteIva.substring(0, 2);
 				String clienteIndirizzo = row.getString("Indirizzo");
 				String clienteCap = row.getString("CAP");
 				String clienteCitta = row.getString("Citta");
@@ -136,15 +137,15 @@ public class FatturaWriteXML {
 				// CessionarioCommittente
 				CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader.addNewCessionarioCommittente();
 				DatiAnagraficiCessionarioType myDatiAnagrafici1 = myCessionarioCommittente.addNewDatiAnagrafici();
-				myDatiAnagrafici1.addNewIdFiscaleIVA().setIdPaese(clienteIva.substring(0, 2));
+				myDatiAnagrafici1.addNewIdFiscaleIVA().setIdPaese(clienteNazione);
 				myDatiAnagrafici1.getIdFiscaleIVA().setIdCodice(clienteIva.substring(2));
 				myDatiAnagrafici1.addNewAnagrafica().setDenominazione(clienteDenominazione);
 				IndirizzoType mySede1 = myCessionarioCommittente.addNewSede();
 				mySede1.setIndirizzo(clienteIndirizzo);
 				mySede1.setCAP(clienteCap);
 				mySede1.setComune(clienteCitta);
-				mySede1.setProvincia(clienteProvincia);
-				mySede1.setNazione(clienteIva.substring(0, 2));
+				if (clienteNazione.equals("IT")) mySede1.setProvincia(clienteProvincia);
+				mySede1.setNazione(clienteNazione);
 				
 				// FatturaElettronicaBody
 				FatturaElettronicaBodyType myFatturaElettronicaBody = myFatturaElettronica.addNewFatturaElettronicaBody();
@@ -195,8 +196,8 @@ public class FatturaWriteXML {
 							dettaglioLinee.setQuantita(row3.getBigDecimal("Metri"));
 							dettaglioLinee.setUnitaMisura(uMisura);
 						} else if (uMisura.equals("Capi")) {
-							//BigDecimal d = new BigDecimal(val);
-							dettaglioLinee.setQuantita(new BigDecimal(row3.getShort("Capi").toString()));
+							BigDecimal quantita = new BigDecimal(row3.getShort("Capi").toString());
+							dettaglioLinee.setQuantita(quantita.setScale(2, BigDecimal.ROUND_HALF_UP));
 						} else {
 							return "FAT."+ clienteNFattura + " UnitaMisura Error";
 						}
