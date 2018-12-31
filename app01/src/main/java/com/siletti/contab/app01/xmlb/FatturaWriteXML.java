@@ -225,10 +225,19 @@ public class FatturaWriteXML {
 						}
 					}
 				}
-				// SPESE DI TRASPORTO
+				// SPESE DI TRASPORTO - VARIE - ESENTI
+				if (trasporto.compareTo(BigDecimal.ZERO) == 1) {
+					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+					dettaglioLinee.setNumeroLinea(numeroLinea);
+					numeroLinea++;
+					dettaglioLinee.setTipoCessionePrestazione(TipoCessionePrestazioneType.AC);
+					dettaglioLinee.setDescrizione("SPESE DI TRASPORTO");
+					
+					
+					
 				
 				
-				
+				}
 				// 2.2.2   <DatiRiepilogo>					
 			    for (Map<String, String> map : datiRiepilogo) {
 			    		if(map.get("rCodiceIva").trim().isEmpty()) {continue;}
