@@ -111,6 +111,7 @@ public class FatturaWriteXML {
 				if (!codiceDestinatario.isEmpty()) {
 					myDatiTrasmissioneType.setCodiceDestinatario(codiceDestinatario);
 				} else if (!pecDestinatario.isEmpty()){
+					myDatiTrasmissioneType.setCodiceDestinatario("0000000");
 					myDatiTrasmissioneType.setPECDestinatario(pecDestinatario);
 				} else {
 					return "FAT."+ clienteNFattura +" Manca Codice e Pec Destinatario";
@@ -202,7 +203,7 @@ public class FatturaWriteXML {
 						dettaglioLinee.setPrezzoUnitario(row3.getBigDecimal("Prezzo"));
 						dettaglioLinee.setPrezzoTotale(row3.getBigDecimal("Importo"));
 						BigDecimal iva = new BigDecimal(row3.getString("DescIva"));
-						dettaglioLinee.setAliquotaIVA(iva);
+						dettaglioLinee.setAliquotaIVA(iva.setScale(2, BigDecimal.ROUND_HALF_UP));
 						if (iva.compareTo(BigDecimal.ZERO) == 0) {
 							switch (row3.getString("CodiceIva")) {
 								case "41":
@@ -220,28 +221,32 @@ public class FatturaWriteXML {
 
 				// 2.2.2   <DatiRiepilogo>					
 			    for (Map<String, String> map : datiRiepilogo) {
-			    		if(map.get("rCodiceIva").isEmpty()) {continue;}
+			    		if(map.get("rCodiceIva").trim().isEmpty()) {continue;}
+			    		int rCodiceIva = Integer.parseInt(map.get("rCodiceIva").trim());
+			    		//Integer rCodiceIva = Integer.valueOf(map.get("rCodiceIva")); 
 			    		BigDecimal imponibile = new BigDecimal(map.get("rImponibile"));
 			    		BigDecimal aliquota = new BigDecimal(map.get("rAliquota"));
 			    		if (imponibile.compareTo(BigDecimal.ZERO) == 1) {
 			    			DatiRiepilogoType datiR = myDatiBeniServizi.addNewDatiRiepilogo();
-			    			datiR.setImponibileImporto(imponibile);
-			    			datiR.setAliquotaIVA(aliquota);
-			    			datiR.setSpeseAccessorie(new BigDecimal(map.get("rSpeseAcc")));
-			    			datiR.setImponibileImporto(new BigDecimal(map.get("rImponibile")));
-			    			datiR.setImposta(new BigDecimal(map.get("rImposta")));
+			    			datiR.setImponibileImporto(imponibile.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    			datiR.setAliquotaIVA(aliquota.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    			BigDecimal rSpeseAcc = new BigDecimal(map.get("rSpeseAcc"));
+			    			datiR.setSpeseAccessorie(rSpeseAcc.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    			BigDecimal rImponibile = new BigDecimal(map.get("rImponibile"));
+			    			datiR.setImponibileImporto(rImponibile.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    			BigDecimal rImposta = new BigDecimal(map.get("rImposta"));
+			    			datiR.setImposta(rImposta.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    			if ( aliquota.compareTo(BigDecimal.ZERO) == 0 ) {
 			    				datiR.setRiferimentoNormativo(map.get("rDescrizione"));
-			    				System.out.println("c.iva: "+ map.get("rCodiceIva") +" fat."+clienteNFattura );
-			    				switch (map.get("rCodiceIva")) {
-								case "41":
+			    				switch (rCodiceIva) {
+								case 41:
 									datiR.setNatura(NaturaType.N_3);
 									break;
-								case "8":
+								case 8:
 									datiR.setNatura(NaturaType.N_2);
 									break;
 								default:
-									return "FAT."+ clienteNFattura + " campo Natura? Cod.Iva: "+map.get("rCodiceIva")+" non riconosciuto";
+									return "FAT."+ clienteNFattura + " rCodiceIva: "+rCodiceIva+" non riconosciuto";
 							}
 			    			}
 			    		}
