@@ -29,6 +29,7 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 
 import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.*;
+import it.gov.agenziaentrate.ivaservizi.docs.xsd.fatture.v12.NaturaType.Enum;
 
 public class FatturaWriteXML {
 
@@ -58,10 +59,10 @@ public class FatturaWriteXML {
 				Integer chiaveDocumento = row.getInt("ChiaveDocumento");
 				
 				String sconto = row.getString("Sconto");
-				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
-				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
-				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
-				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
+//				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
+//				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
+//				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
+//				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
 				BigDecimal trasporto = row.getBigDecimal("Trasporto"); 
 				BigDecimal varie = row.getBigDecimal("Varie"); 
 				BigDecimal esenti = row.getBigDecimal("Esenti"); 
@@ -101,20 +102,19 @@ public class FatturaWriteXML {
 
 			 // ATTENZIONE Attuale fatturazione ha sempre un unica aliquota Iva da applicare alle Spese accessorie
 				BigDecimal aliquotaIva = row.getBigDecimal("rAliquota1"); 
-				String descrizioneIva = row.getString("rDescrizione1"); 
+//				String descrizioneIva = row.getString("rDescrizione1"); 
+				Enum naturaIva = null ; 
 				int codiceIva = Integer.parseInt(row.getString("rCodiceIva1").trim());
-	    		
-	    		if (aliquota.compareTo(BigDecimal.ZERO) == 0) {
-	    			datiR.setRiferimentoNormativo(map.get("rDescrizione"));
+	    		if (aliquotaIva.compareTo(BigDecimal.ZERO) == 0) {
 	    			switch (codiceIva) {
 					case 41:
-						datiR.setNatura(NaturaType.N_3);
+						naturaIva = NaturaType.N_3;
 						break;
 					case 8:
-						datiR.setNatura(NaturaType.N_2);
+						naturaIva = NaturaType.N_2;
 						break;
 					default:
-						return "FAT."+ clienteNFattura + " rCodiceIva: "+rCodiceIva+" non riconosciuto";
+						return "FAT."+ clienteNFattura + " rCodiceIva1 non riconosciuto";
 	    			}
 	    		}
 
@@ -254,9 +254,11 @@ public class FatturaWriteXML {
 					dettaglioLinee.setDescrizione("SPESE DI TRASPORTO");
 					dettaglioLinee.setPrezzoUnitario(trasporto.setScale(2, BigDecimal.ROUND_HALF_UP));
 					dettaglioLinee.setPrezzoTotale(trasporto.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
+					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
 				}
 
-				// SPESE  VARIE - ESENTI
+				// SPESE  VARIE 
 				if (varie.compareTo(BigDecimal.ZERO) == 1) {
 					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
 					dettaglioLinee.setNumeroLinea(numeroLinea);
@@ -265,6 +267,29 @@ public class FatturaWriteXML {
 					dettaglioLinee.setDescrizione("SPESE DI INCASSO");
 					dettaglioLinee.setPrezzoUnitario(varie.setScale(2, BigDecimal.ROUND_HALF_UP));
 					dettaglioLinee.setPrezzoTotale(varie.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
+					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
+				}
+
+				// SPESE   ESENTI
+				if (esenti.compareTo(BigDecimal.ZERO) == 1) {
+					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+					dettaglioLinee.setNumeroLinea(numeroLinea);
+					numeroLinea++;
+					dettaglioLinee.setTipoCessionePrestazione(TipoCessionePrestazioneType.AC);
+					dettaglioLinee.setDescrizione("SPESE ESENTI");
+					dettaglioLinee.setPrezzoUnitario(esenti.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setPrezzoTotale(esenti.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setAliquotaIVA(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setNatura(NaturaType.N_4);
+					if (aliquotaIva.compareTo(BigDecimal.ZERO) == 1) {
+						DatiRiepilogoType datiR = myDatiBeniServizi.addNewDatiRiepilogo();
+						datiR.setAliquotaIVA(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    		datiR.setSpeseAccessorie(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    		datiR.setImponibileImporto(esenti.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    		datiR.setImposta(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
+			    		datiR.setNatura(NaturaType.N_4);
+					}
 				}
 
 				
