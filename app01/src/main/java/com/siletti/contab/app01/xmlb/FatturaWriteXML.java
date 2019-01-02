@@ -285,10 +285,11 @@ public class FatturaWriteXML {
 					if (aliquotaIva.compareTo(BigDecimal.ZERO) == 1) {
 						DatiRiepilogoType datiR = myDatiBeniServizi.addNewDatiRiepilogo();
 						datiR.setAliquotaIVA(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
-			    		datiR.setSpeseAccessorie(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
+//			    		datiR.setSpeseAccessorie(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setImponibileImporto(esenti.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setImposta(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setNatura(NaturaType.N_4);
+			    		datiR.setRiferimentoNormativo("SPESE ART. 15");
 					}
 				}
 
