@@ -348,6 +348,7 @@ public class FatturaWriteXML {
 			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
 			    DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
 				
+			    // continuare
 			    myMap1.put("DataScadenzaPagamento", asGmt);
 	    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
 	    		datiPagamento.add(i-1,myMap1);
