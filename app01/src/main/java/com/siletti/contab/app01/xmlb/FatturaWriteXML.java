@@ -61,8 +61,8 @@ public class FatturaWriteXML {
 				String sconto = row.getString("Sconto");
 //				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
 //				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
-//				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
-//				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
+				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
+				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
 				BigDecimal trasporto = row.getBigDecimal("Trasporto"); 
 				BigDecimal varie = row.getBigDecimal("Varie"); 
 				BigDecimal esenti = row.getBigDecimal("Esenti"); 
@@ -100,7 +100,7 @@ public class FatturaWriteXML {
 			    		datiRiepilogo.add(i-1,myMap1);
 			    }
 
-			 // ATTENZIONE Attuale fatturazione ha sempre un unica aliquota Iva da applicare alle Spese accessorie
+			 // ATTENZIONE Attuale fatturazione ha sempre UN UNICAM aliquota Iva da applicare alle Spese accessorie
 				BigDecimal aliquotaIva = row.getBigDecimal("rAliquota1"); 
 //				String descrizioneIva = row.getString("rDescrizione1"); 
 				Enum naturaIva = null ; 
@@ -172,7 +172,8 @@ public class FatturaWriteXML {
 				if (clienteNazione.equals("IT")) mySede1.setProvincia(clienteProvincia);
 				mySede1.setNazione(clienteNazione);
 				
-				// FatturaElettronicaBody
+		// 2   <FatturaElettronicaBody>							
+
 				FatturaElettronicaBodyType myFatturaElettronicaBody = myFatturaElettronica.addNewFatturaElettronicaBody();
 				DatiGeneraliType myDatiGenerali = myFatturaElettronicaBody.addNewDatiGenerali();
 					// DatiGeneraliDocumento
@@ -331,7 +332,10 @@ public class FatturaWriteXML {
 			    		datiR.setImposta(rImposta.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    }
 				
-				
+			    //  2.4   <DatiPagamento>						
+			    DatiPagamentoType myDatiPagamento = myFatturaElettronicaBody.addNewDatiPagamento();
+			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
+			    DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
 				
 				// Aggiunta foglio stile etc
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -360,8 +364,7 @@ public class FatturaWriteXML {
 					myDoc.save(file);
 				} catch (IOException e) {e.printStackTrace();}
 */
-				
-				
+						
 				
 				
 			}
