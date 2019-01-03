@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -61,15 +63,13 @@ public class FatturaWriteXML {
 				String sconto = row.getString("Sconto");
 //				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
 //				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
-				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
-				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
+//				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
+//				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
 				BigDecimal trasporto = row.getBigDecimal("Trasporto"); 
 				BigDecimal varie = row.getBigDecimal("Varie"); 
 				BigDecimal esenti = row.getBigDecimal("Esenti"); 
 				
 				// Recupero 2.1.8   <DatiDDT> per ogni riga/fattura 
-				
-								
 				Map<List<Object>, List<Integer>> datiDDT = new HashMap<>();
 				Table table2 = db.getTable("DatiDDT");
 				Cursor cursor = CursorBuilder.createCursor(table2);
@@ -117,6 +117,17 @@ public class FatturaWriteXML {
 						return "FAT."+ clienteNFattura + " rCodiceIva1 non riconosciuto";
 	    			}
 	    		}
+
+			    //  Recupero 2.4   <DatiPagamento>						
+	    		List<Map<String , String>> datiPagamento  = new ArrayList<Map<String,String>>();
+			    for(int i=1; i<7; i++){
+			    		Map<String,String> myMap1 = new HashMap<String, String>();
+			    		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			    		String asGmt = df.format(row.getDate("DataScadenza"+i).getTime());
+			    		myMap1.put("DataScadenzaPagamento", asGmt);
+			    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
+			    		datiPagamento.add(i-1,myMap1);
+			    }
 
 				
 				
@@ -337,6 +348,17 @@ public class FatturaWriteXML {
 			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
 			    DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
 				
+			    myMap1.put("DataScadenzaPagamento", asGmt);
+	    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
+	    		datiPagamento.add(i-1,myMap1);
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
 				// Aggiunta foglio stile etc
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				myDoc.save(stream,options);
