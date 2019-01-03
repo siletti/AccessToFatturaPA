@@ -8,8 +8,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -122,8 +120,10 @@ public class FatturaWriteXML {
 	    		List<Map<String , String>> datiPagamento  = new ArrayList<Map<String,String>>();
 			    for(int i=1; i<7; i++){
 			    		Map<String,String> myMap1 = new HashMap<String, String>();
-			    		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-			    		String asGmt = df.format(row.getDate("DataScadenza"+i).getTime());
+//			    		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+//			    		String asGmt = df.format(row.getDate("DataScadenza"+i).getTime());
+			    		String asGmt = Long.toString((row.getDate("DataScadenza"+i)).getTime());
+			    		
 			    		myMap1.put("DataScadenzaPagamento", asGmt);
 			    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
 			    		datiPagamento.add(i-1,myMap1);
@@ -268,6 +268,8 @@ public class FatturaWriteXML {
 					dettaglioLinee.setPrezzoTotale(trasporto.setScale(2, BigDecimal.ROUND_HALF_UP));
 					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
 					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
+					// TODO
+					
 				}
 
 				// SPESE  VARIE 
@@ -297,7 +299,6 @@ public class FatturaWriteXML {
 					if (aliquotaIva.compareTo(BigDecimal.ZERO) == 1) {
 						DatiRiepilogoType datiR = myDatiBeniServizi.addNewDatiRiepilogo();
 						datiR.setAliquotaIVA(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
-//			    		datiR.setSpeseAccessorie(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setImponibileImporto(esenti.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setImposta(BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP));
 			    		datiR.setNatura(NaturaType.N_4);
@@ -345,18 +346,22 @@ public class FatturaWriteXML {
 				
 			    //  2.4   <DatiPagamento>						
 			    DatiPagamentoType myDatiPagamento = myFatturaElettronicaBody.addNewDatiPagamento();
-			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
-			    DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
-				
-			    // continuare
-			    myMap1.put("DataScadenzaPagamento", asGmt);
-	    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
-	    		datiPagamento.add(i-1,myMap1);
-			    
-			    
-			    
-			    
-			    
+			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_01);
+// TODO
+			    for (Map<String, String> map : datiPagamento) {
+			    	BigDecimal importoPagamento = new BigDecimal(map.get("ImportoPagamento"));
+			    	System.out.println(importoPagamento);
+			    	if (importoPagamento.compareTo(BigDecimal.ZERO) == 0) 
+			    		   	{continue;}
+		    		DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
+		    		myDettaglioPagamento.setModalitaPagamento(ModalitaPagamentoType.MP_05);
+		    		myDettaglioPagamento.setImportoPagamento(importoPagamento);
+		    		Calendar cal1 = Calendar.getInstance();
+					cal1.setTimeInMillis(Long.parseLong(map.get("DataScadenzaPagamento")));
+					myDettaglioPagamento.setDataScadenzaPagamento(cal1);
+					myDettaglioPagamento.setIstitutoFinanziario("UniCredit S.p.A.");
+					myDettaglioPagamento.setIBAN("IT78N0200822310000004100960");					
+		 	    }
 			    
 			    
 			    
