@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -119,13 +120,13 @@ public class FatturaWriteXML {
 			    //  Recupero 2.4   <DatiPagamento>						
 	    		List<Map<String , String>> datiPagamento  = new ArrayList<Map<String,String>>();
 			    for(int i=1; i<7; i++){
+			    		BigDecimal importo = row.getBigDecimal("ImportoScadenza"+i);
+			    		if (importo.compareTo(BigDecimal.ZERO) == 0) 
+		    		   		{continue;}
 			    		Map<String,String> myMap1 = new HashMap<String, String>();
-//			    		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-//			    		String asGmt = df.format(row.getDate("DataScadenza"+i).getTime());
 			    		String asGmt = Long.toString((row.getDate("DataScadenza"+i)).getTime());
-			    		
 			    		myMap1.put("DataScadenzaPagamento", asGmt);
-			    		myMap1.put("ImportoPagamento", row.getBigDecimal("ImportoScadenza"+i).toPlainString());
+			    		myMap1.put("ImportoPagamento", importo.toPlainString());
 			    		datiPagamento.add(i-1,myMap1);
 			    }
 
@@ -191,7 +192,7 @@ public class FatturaWriteXML {
 				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myDatiGenerali.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
-				Calendar cal = Calendar.getInstance();
+	    		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 				cal.setTime(dataDocumento);		
 				myDatiGeneraliDocumento.setData(cal);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
@@ -268,8 +269,6 @@ public class FatturaWriteXML {
 					dettaglioLinee.setPrezzoTotale(trasporto.setScale(2, BigDecimal.ROUND_HALF_UP));
 					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
 					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
-					// TODO
-					
 				}
 
 				// SPESE  VARIE 
@@ -346,17 +345,20 @@ public class FatturaWriteXML {
 				
 			    //  2.4   <DatiPagamento>						
 			    DatiPagamentoType myDatiPagamento = myFatturaElettronicaBody.addNewDatiPagamento();
-			    myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_01);
+			    if (datiPagamento.size()>1) {
+			    	myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_01);
+			    } else {
+			    	myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
+			    }
 // TODO
 			    for (Map<String, String> map : datiPagamento) {
 			    	BigDecimal importoPagamento = new BigDecimal(map.get("ImportoPagamento"));
-			    	System.out.println(importoPagamento);
 			    	if (importoPagamento.compareTo(BigDecimal.ZERO) == 0) 
 			    		   	{continue;}
 		    		DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
 		    		myDettaglioPagamento.setModalitaPagamento(ModalitaPagamentoType.MP_05);
-		    		myDettaglioPagamento.setImportoPagamento(importoPagamento);
-		    		Calendar cal1 = Calendar.getInstance();
+		    		myDettaglioPagamento.setImportoPagamento(importoPagamento.setScale(2, BigDecimal.ROUND_HALF_UP));
+		    		Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal1.setTimeInMillis(Long.parseLong(map.get("DataScadenzaPagamento")));
 					myDettaglioPagamento.setDataScadenzaPagamento(cal1);
 					myDettaglioPagamento.setIstitutoFinanziario("UniCredit S.p.A.");
@@ -364,41 +366,43 @@ public class FatturaWriteXML {
 		 	    }
 			    
 			    
+			    // Salva file finale
 			    
 				// Aggiunta foglio stile etc
-				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-				myDoc.save(stream,options);
-				String myDocString = new String(stream.toByteArray());
-				String regex = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testaold.xml")), StandardCharsets.UTF_8);
-				String replacement = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testa.xml")), StandardCharsets.UTF_8);
-				String myDocCorretto = myDocString.replace(regex, replacement);
+//				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//				myDoc.save(stream,options);
+//				String myDocString = new String(stream.toByteArray());
+//				String regex = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testaold.xml")), StandardCharsets.UTF_8);
+//				String replacement = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testa.xml")), StandardCharsets.UTF_8);
+//				String myDocCorretto = myDocString.replace(regex, replacement);
 
-				// Salva file finale
 				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+String.format("%04d", NumeroDocumento) + "-"+cliente  +".xml";
 				File file = new File(fileNameNew);
-				try {    
-			           FileWriter fw=new FileWriter(file);    
-			           fw.write(myDocCorretto);    
-			           fw.close();
-			           risultato += fileNameNew;
-			           risultato += "\r\n";
-			         } catch(Exception e){
-			        	 System.out.println(e);
-			        	 risultato = e.getMessage();
-			        	 }   
+//				try {    
+//			           FileWriter fw=new FileWriter(file);    
+//			           fw.write(myDocCorretto);    
+//			           fw.close();
+//			           risultato += fileNameNew;
+//			           risultato += "\r\n";
+//			         } catch(Exception e){
+//			        	 System.out.println(e);
+//			        	 risultato = e.getMessage();
+//			        	 }   
 				
-				/*
 				try {
-					myDoc.save(file);
-				} catch (IOException e) {e.printStackTrace();}
-*/
+					myDoc.save(file,options);
+					risultato += fileNameNew;
+			        risultato += "\r\n";
+				} catch (IOException e) {
+					e.printStackTrace();
+					risultato = e.getMessage();
+					}
 						
 				
 				
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			risultato = e.getMessage();
 		}
