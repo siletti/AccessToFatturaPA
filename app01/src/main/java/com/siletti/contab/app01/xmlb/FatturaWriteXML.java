@@ -198,9 +198,10 @@ public class FatturaWriteXML {
 				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myDatiGenerali.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
-	    		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-				cal.setTime(dataDocumento);		
-				myDatiGeneraliDocumento.setData(cal);
+//	    		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+	    		Calendar calDataDocumento = Calendar.getInstance(TimeZone.getDefault());
+	    		calDataDocumento.setTime(dataDocumento);		
+				myDatiGeneraliDocumento.setData(calDataDocumento);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
 				if ( !sconto.isEmpty()  ) {
 					double scontoD = Double.parseDouble(sconto);
@@ -212,6 +213,7 @@ public class FatturaWriteXML {
 				datiDDT.forEach((k, e) -> {
 					DatiDDTType myDatiDDT = myDatiGenerali.addNewDatiDDT();
 					myDatiDDT.setNumeroDDT((String) k.get(0));
+					Calendar cal = Calendar.getInstance(TimeZone.getDefault());
 					cal.setTime((Date) k.get(1));		
 					myDatiDDT.setDataDDT(cal);
 					Integer[] array = e.toArray(new Integer[e.size()]);
@@ -364,7 +366,7 @@ public class FatturaWriteXML {
 		    		DettaglioPagamentoType myDettaglioPagamento = myDatiPagamento.addNewDettaglioPagamento();
 		    		myDettaglioPagamento.setModalitaPagamento(ModalitaPagamentoType.MP_05);
 		    		myDettaglioPagamento.setImportoPagamento(importoPagamento.setScale(2, BigDecimal.ROUND_HALF_UP));
-		    		Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		    		Calendar cal1 = Calendar.getInstance(TimeZone.getDefault());
 					cal1.setTimeInMillis(Long.parseLong(map.get("DataScadenzaPagamento")));
 					myDettaglioPagamento.setDataScadenzaPagamento(cal1);
 					myDettaglioPagamento.setIstitutoFinanziario("UniCredit S.p.A.");
@@ -383,7 +385,7 @@ public class FatturaWriteXML {
 //				String myDocCorretto = myDocString.replace(regex, replacement);
 				String myDocCorretto = myDocString.replace("FatturaElettronica xmlns", "FatturaElettronica versione=\"FPR12\" xmlns");
 
-				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+String.format("%04d", NumeroDocumento) + "-"+cliente  +".xml";
+				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + calDataDocumento.get(Calendar.YEAR)  + "-"+String.format("%04d", NumeroDocumento) + "-"+cliente  +".xml";
 				File file = new File(fileNameNew);
 
 				try {    
