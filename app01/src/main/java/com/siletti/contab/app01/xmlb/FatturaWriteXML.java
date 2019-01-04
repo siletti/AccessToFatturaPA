@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -136,6 +133,7 @@ public class FatturaWriteXML {
 				XmlOptions options = new XmlOptions();
 				options.put( XmlOptions.SAVE_PRETTY_PRINT );
 				options.put( XmlOptions.SAVE_PRETTY_PRINT_INDENT, 3 );
+				//options.setUseDefaultNamespace();
 				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance(options);
 				FatturaElettronicaType myFatturaElettronica = myDoc.addNewFatturaElettronica();
 				FatturaElettronicaHeaderType myFatturaElettronicaHeader = myFatturaElettronica.addNewFatturaElettronicaHeader();
@@ -369,36 +367,36 @@ public class FatturaWriteXML {
 			    // Salva file finale
 			    
 				// Aggiunta foglio stile etc
-//				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//				myDoc.save(stream,options);
-//				String myDocString = new String(stream.toByteArray());
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				myDoc.save(stream,options);
+				String myDocString = new String(stream.toByteArray());
 //				String regex = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testaold.xml")), StandardCharsets.UTF_8);
 //				String replacement = new String(Files.readAllBytes(Paths.get(fatture.getParent() + java.io.File.separatorChar +"testa.xml")), StandardCharsets.UTF_8);
 //				String myDocCorretto = myDocString.replace(regex, replacement);
+				String myDocCorretto = myDocString.replace("FatturaElettronica xmlns", "FatturaElettronica versione=\"FPR12\" xmlns");
 
 				String fileNameNew = fatture.getParent() + java.io.File.separatorChar + cal.get(Calendar.YEAR)  + "-"+String.format("%04d", NumeroDocumento) + "-"+cliente  +".xml";
 				File file = new File(fileNameNew);
-//				try {    
-//			           FileWriter fw=new FileWriter(file);    
-//			           fw.write(myDocCorretto);    
-//			           fw.close();
-//			           risultato += fileNameNew;
-//			           risultato += "\r\n";
-//			         } catch(Exception e){
-//			        	 System.out.println(e);
-//			        	 risultato = e.getMessage();
-//			        	 }   
+
+				try {    
+			           FileWriter fw=new FileWriter(file);    
+			           fw.write(myDocCorretto);    
+			           fw.close();
+			           risultato += fileNameNew;
+			           risultato += "\r\n";
+			         } catch(Exception e){
+			        	 System.out.println(e);
+			        	 risultato = e.getMessage();
+			        	 }   
 				
-				try {
-					myDoc.save(file,options);
-					risultato += fileNameNew;
-			        risultato += "\r\n";
-				} catch (IOException e) {
-					e.printStackTrace();
-					risultato = e.getMessage();
-					}
-						
-				
+//				try {
+//					myDoc.save(file,options);
+//					risultato += fileNameNew;
+//			        risultato += "\r\n";
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//					risultato = e.getMessage();
+//					}
 				
 			}
 
