@@ -168,6 +168,14 @@ public class FatturaWriteXML {
 				mySede.setComune("MONGRANDO");
 				mySede.setProvincia("BI");
 				mySede.setNazione("IT");
+				IscrizioneREAType myIscrizioneREA =  myCedentePrestatore.addNewIscrizioneREA();
+				myIscrizioneREA.setUfficio("BI");
+				myIscrizioneREA.setNumeroREA("165610");
+				myIscrizioneREA.setUfficio("BI");
+				myIscrizioneREA.setSocioUnico(SocioUnicoType.SM);
+				myIscrizioneREA.setStatoLiquidazione(StatoLiquidazioneType.LN);
+				BigDecimal capitaleSociale = new BigDecimal("30600");
+				myIscrizioneREA.setCapitaleSociale(capitaleSociale.setScale(2, BigDecimal.ROUND_HALF_UP));
 
 				// CessionarioCommittente
 				CessionarioCommittenteType myCessionarioCommittente = myFatturaElettronicaHeader.addNewCessionarioCommittente();
@@ -247,7 +255,7 @@ public class FatturaWriteXML {
 									dettaglioLinee.setNatura(NaturaType.N_3);
 									break;
 								case "8":
-									dettaglioLinee.setNatura(NaturaType.N_2);
+									dettaglioLinee.setNatura(NaturaType.N_3);
 									break;
 								default:
 									return "FAT."+ clienteNFattura + " Cod.Iva non riconosciuto";
@@ -327,7 +335,7 @@ public class FatturaWriteXML {
 								datiR.setNatura(NaturaType.N_3);
 								break;
 							case 8:
-								datiR.setNatura(NaturaType.N_2);
+								datiR.setNatura(NaturaType.N_3);
 								break;
 							default:
 								return "FAT."+ clienteNFattura + " rCodiceIva: "+rCodiceIva+" non riconosciuto";
