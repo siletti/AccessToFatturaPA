@@ -21,7 +21,6 @@ import javafx.event.EventHandler;
 import java.io.File;
 //import java.io.IOException;
 import java.util.List;
-//import java.util.Set;
 
 
 public class App
@@ -123,10 +122,6 @@ public class App
 	private void showMultipleFileChooser() {
 
 		FileChooser fileChooser = new FileChooser();
-//		fileChooser.setTitle("Select PDF files");
-//		fileChooser.setInitialDirectory(new File("C:\\gestione"));
-//		fileChooser.getExtensionFilters().addAll(
-//			new ExtensionFilter("PDF Files", "*.pdf"));
 		fileChooser.setTitle("Select MDB files");
 		File cartella =  new File("C:\\gestione\\REPORTS");
 		if (cartella.exists()) {
@@ -135,17 +130,12 @@ public class App
 		fileChooser.getExtensionFilters().addAll(
 			new ExtensionFilter("MDB Files", "*.mdb"));
 		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(savedStage);
-
+		
 		if (selectedFiles != null) {
-
-			
-			// creare xml
-			String risultato = FatturaWriteXML.WriteFile(selectedFiles.get(0));
-			
-			//FatturAttiveXMLStreamWriter.WriteFile(fileOtpt);
-						
-			actionStatus.setText(risultato);
-			//actionStatus.setText("Files selected [" + selectedFiles.size() + "]: " + selectedFiles.get(0).getName() + "..");
+			selectedFiles.forEach(fls->{
+				String risultato = FatturaWriteXML.WriteFile(fls);
+				actionStatus.setText(risultato);
+			});
 		}
 		else {
 			actionStatus.setText("File selection cancelled.");

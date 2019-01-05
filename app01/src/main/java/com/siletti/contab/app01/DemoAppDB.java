@@ -14,7 +14,11 @@ public class DemoAppDB {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			Database db = DatabaseBuilder.open(new File("C:\\GESTIONE\\REPORTS\\2018.11.16.21610.mdb"));
+			Database db = DatabaseBuilder.open(new File("C:\\GESTIONE\\REPORTS\\FATTUR-58-60.mdb"));
+			System.out.println("DB Charset: "+db.getCharset());
+			System.out.println("DB FileFormat: "+db.getFileFormat());
+			System.out.println("DB Properties: "+db.getDatabaseProperties());
+			
 			Set<String> tableNames = db.getTableNames();
 			tableNames.stream().forEach(element -> System.out.println(element));
 			ExportUtil.exportAll(db, new File("C:\\GESTIONE\\REPORTS"),"csv", true);
@@ -23,14 +27,8 @@ public class DemoAppDB {
 			e.printStackTrace();
 		}
 		
-		try {
-			DatabaseBuilder.create(Database.FileFormat.V2016 ,new File("C:\\GESTIONE\\REPORTS\\temp2018"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		System.out.println("ciao sono qua, HO FINITO!");
+		
 	}
 
 }
