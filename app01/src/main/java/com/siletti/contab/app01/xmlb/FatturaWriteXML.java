@@ -60,8 +60,8 @@ public class FatturaWriteXML {
 				Integer chiaveDocumento = row.getInt("ChiaveDocumento");
 				
 				String sconto = row.getString("Sconto");
-//				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
-//				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
+				BigDecimal totaleMerceLordo = row.getBigDecimal("TotaleMerceLordo"); 
+				BigDecimal totaleMerceNetto = row.getBigDecimal("TotaleMerceNetto"); 
 //				BigDecimal totaleIva = row.getBigDecimal("TotaleIva"); 
 //				BigDecimal totaleImponibile = row.getBigDecimal("TotaleImponibile"); 
 				BigDecimal trasporto = row.getBigDecimal("Trasporto"); 
@@ -200,7 +200,7 @@ public class FatturaWriteXML {
 
 				FatturaElettronicaBodyType myFatturaElettronicaBody = myFatturaElettronica.addNewFatturaElettronicaBody();
 				DatiGeneraliType myDatiGenerali = myFatturaElettronicaBody.addNewDatiGenerali();
-					// DatiGeneraliDocumento
+				// DatiGeneraliDocumento
 				DatiGeneraliDocumentoType myDatiGeneraliDocumento = myDatiGenerali.addNewDatiGeneraliDocumento();
 				myDatiGeneraliDocumento.setTipoDocumento(TipoDocumentoType.TD_01);
 				myDatiGeneraliDocumento.setDivisa("EUR");
@@ -209,17 +209,6 @@ public class FatturaWriteXML {
 	    		calDataDocumento.setTime(dataDocumento);		
 				myDatiGeneraliDocumento.setData(calDataDocumento);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
-				if ( !sconto.isEmpty()  ) {
-					BigDecimal scontoBigD = new BigDecimal(sconto);
-					
-					// ERRATO SCONTO applichiamo solo alla merce (no trasp. ecc)
-//					ScontoMaggiorazioneType scontoMaggiorazione = myDatiGeneraliDocumento.addNewScontoMaggiorazione();
-//					scontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
-//					scontoMaggiorazione.setPercentuale(scontoBigD.setScale(2, BigDecimal.ROUND_HALF_UP));
-
-				
-				
-				}
 					// 2.1.8   <DatiDDT>
 				datiDDT.forEach((k, e) -> {
 					DatiDDTType myDatiDDT = myDatiGenerali.addNewDatiDDT();
@@ -276,7 +265,10 @@ public class FatturaWriteXML {
 						}
 					}
 				}
-				// tutte righe fatture con stessa IVA !
+				
+				
+				
+				// Origine prevede sempre tutte righe fattura con la stessa IVA !
 				// SPESE DI TRASPORTO 
 				if (trasporto.compareTo(BigDecimal.ZERO) == 1) {
 					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
@@ -324,6 +316,26 @@ public class FatturaWriteXML {
 					}
 				}
 
+				if ( !sconto.isEmpty()  ) {
+					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
+					dettaglioLinee.setNumeroLinea(numeroLinea);
+					numeroLinea++;
+					dettaglioLinee.setTipoCessionePrestazione(TipoCessionePrestazioneType.SC);
+					dettaglioLinee.setDescrizione("SCONTO "+ sconto+"%");
+					BigDecimal scontoBD = totaleMerceNetto.subtract(totaleMerceLordo);
+					dettaglioLinee.setPrezzoUnitario(scontoBD.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setPrezzoTotale(scontoBD.setScale(2, BigDecimal.ROUND_HALF_UP));
+					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
+					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
+					
+					// ERRATO SCONTO applichiamo solo alla merce (no trasp. ecc)
+//					ScontoMaggiorazioneType scontoMaggiorazione = myDatiGeneraliDocumento.addNewScontoMaggiorazione();
+//					scontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
+//					scontoMaggiorazione.setPercentuale(scontoBigD.setScale(2, BigDecimal.ROUND_HALF_UP));
+					
+					
+					
+				}
 				
 				
 				
