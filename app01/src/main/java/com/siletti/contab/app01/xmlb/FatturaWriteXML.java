@@ -208,10 +208,12 @@ public class FatturaWriteXML {
 				myDatiGeneraliDocumento.setData(calDataDocumento);
 				myDatiGeneraliDocumento.setNumero(clienteNFattura);
 				if ( !sconto.isEmpty()  ) {
-					double scontoD = Double.parseDouble(sconto);
+//					double scontoD = Double.parseDouble(sconto);
+					BigDecimal scontoBigD = new BigDecimal(sconto);
 					ScontoMaggiorazioneType scontoMaggiorazione = myDatiGeneraliDocumento.addNewScontoMaggiorazione();
 					scontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
-					scontoMaggiorazione.setPercentuale(BigDecimal.valueOf(scontoD));
+//					scontoMaggiorazione.setPercentuale(BigDecimal.valueOf(scontoD).setScale(2, BigDecimal.ROUND_HALF_UP));
+					scontoMaggiorazione.setPercentuale(scontoBigD.setScale(2, BigDecimal.ROUND_HALF_UP));
 				}
 					// 2.1.8   <DatiDDT>
 				datiDDT.forEach((k, e) -> {
