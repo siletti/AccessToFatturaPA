@@ -239,7 +239,7 @@ public class FatturaWriteXML {
 						codiceArticolo.setCodiceValore(row3.getString("Codice"));
 						dettaglioLinee.setDescrizione(row3.getString("Descrizione1"));
 						if (uMisura.equals("Mt")) {
-							dettaglioLinee.setQuantita(row3.getBigDecimal("Metri"));
+							dettaglioLinee.setQuantita(row3.getBigDecimal("Metri").setScale(2, BigDecimal.ROUND_HALF_UP));
 							dettaglioLinee.setUnitaMisura(uMisura);
 						} else if (uMisura.equals("Capi")) {
 							BigDecimal quantita = new BigDecimal(row3.getShort("Capi").toString());
@@ -247,8 +247,8 @@ public class FatturaWriteXML {
 						} else {
 							return "FAT."+ clienteNFattura + " UnitaMisura Error";
 						}
-						dettaglioLinee.setPrezzoUnitario(row3.getBigDecimal("Prezzo"));
-						dettaglioLinee.setPrezzoTotale(row3.getBigDecimal("Importo"));
+						dettaglioLinee.setPrezzoUnitario(row3.getBigDecimal("Prezzo").setScale(2, BigDecimal.ROUND_HALF_UP));
+						dettaglioLinee.setPrezzoTotale(row3.getBigDecimal("Importo").setScale(2, BigDecimal.ROUND_HALF_UP));
 						BigDecimal iva = new BigDecimal(row3.getString("DescIva"));
 						dettaglioLinee.setAliquotaIVA(iva.setScale(2, BigDecimal.ROUND_HALF_UP));
 						if (iva.compareTo(BigDecimal.ZERO) == 0) {
@@ -315,7 +315,8 @@ public class FatturaWriteXML {
 			    		datiR.setRiferimentoNormativo("SPESE ART. 15");
 					}
 				}
-
+				
+				// SCONTO SU LORDO MERCE
 				if ( !sconto.isEmpty()  ) {
 					DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
 					dettaglioLinee.setNumeroLinea(numeroLinea);
@@ -327,17 +328,7 @@ public class FatturaWriteXML {
 					dettaglioLinee.setPrezzoTotale(scontoBD.setScale(2, BigDecimal.ROUND_HALF_UP));
 					dettaglioLinee.setAliquotaIVA(aliquotaIva.setScale(2, BigDecimal.ROUND_HALF_UP));
 					if (aliquotaIva.compareTo(BigDecimal.ZERO)==0) dettaglioLinee.setNatura(naturaIva);
-					
-					// ERRATO SCONTO applichiamo solo alla merce (no trasp. ecc)
-//					ScontoMaggiorazioneType scontoMaggiorazione = myDatiGeneraliDocumento.addNewScontoMaggiorazione();
-//					scontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
-//					scontoMaggiorazione.setPercentuale(scontoBigD.setScale(2, BigDecimal.ROUND_HALF_UP));
-					
-					
-					
 				}
-				
-				
 				
 				// 2.2.2   <DatiRiepilogo>					
 			    for (Map<String, String> map : datiRiepilogo) {
@@ -381,7 +372,6 @@ public class FatturaWriteXML {
 			    } else {
 			    	myDatiPagamento.setCondizioniPagamento(CondizioniPagamentoType.TP_02);
 			    }
-// TODO
 			    for (Map<String, String> map : datiPagamento) {
 			    	BigDecimal importoPagamento = new BigDecimal(map.get("ImportoPagamento"));
 			    	if (importoPagamento.compareTo(BigDecimal.ZERO) == 0) 
