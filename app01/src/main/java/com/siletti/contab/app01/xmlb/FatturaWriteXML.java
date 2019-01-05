@@ -44,6 +44,7 @@ public class FatturaWriteXML {
 				String cliente = row.getString("CodiceCliente");
 				String clienteDenominazione = row.getString("RagioneSociale1");
 				String clienteIva = row.getString("PartitaIva");
+				String clienteCodiceFiscale = row.getString("CodiceFiscale");
 				String clienteNazione = clienteIva.substring(0, 2);
 				String clienteIndirizzo = row.getString("Indirizzo");
 				String clienteCap = row.getString("CAP");
@@ -187,7 +188,10 @@ public class FatturaWriteXML {
 				mySede1.setIndirizzo(clienteIndirizzo);
 				mySede1.setCAP(clienteCap);
 				mySede1.setComune(clienteCitta);
-				if (clienteNazione.equals("IT")) mySede1.setProvincia(clienteProvincia);
+				if (clienteNazione.equals("IT")) {
+					mySede1.setProvincia(clienteProvincia);
+					myDatiAnagrafici1.setCodiceFiscale(clienteCodiceFiscale);
+				}
 				mySede1.setNazione(clienteNazione);
 				
 		// 2   <FatturaElettronicaBody>							
