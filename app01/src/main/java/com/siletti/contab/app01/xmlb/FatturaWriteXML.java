@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,7 +35,8 @@ public class FatturaWriteXML {
 	public static String WriteFile(File fatture) {
 		String risultato = "";
 		try (Database db = DatabaseBuilder.open(fatture);) {
-
+			db.setCharset(Charset.forName("ISO-8859-1"));
+			
 			Table table = db.getTable("tmpTesta");
 			for (Row row : table) {
 				// Per ogni fattura
