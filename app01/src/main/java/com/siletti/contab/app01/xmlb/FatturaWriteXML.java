@@ -34,7 +34,7 @@ public class FatturaWriteXML {
 			db.setCharset(Charset.forName("ISO-8859-1"));
 
 			Table table = db.getTable("tmpTesta");
-			// Per ogni fattura
+			// Per ogni fattura contenuta in una row tabella tmpTesta
 			for (Row row : table) {
 
 				// Recupero dati
