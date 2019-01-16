@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,12 +127,15 @@ public class FatturaWriteXML {
 					myMap1.put("ImportoPagamento", importo.toPlainString());
 					datiPagamento.add(i - 1, myMap1);
 				}
-
-				// Nuova Fattura
+				
+				/*
+				 * Creazione Nuova Fattura 
+				 * 
+				 *  
+				 */				
 				XmlOptions options = new XmlOptions();
 				options.put(XmlOptions.SAVE_PRETTY_PRINT);
 				options.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, 3);
-				// options.setUseDefaultNamespace();
 				FatturaElettronicaDocument myDoc = FatturaElettronicaDocument.Factory.newInstance(options);
 				FatturaElettronicaType myFatturaElettronica = myDoc.addNewFatturaElettronica();
 				myFatturaElettronica.setVersione(FormatoTrasmissioneType.FPR_12);
@@ -212,8 +216,10 @@ public class FatturaWriteXML {
 				datiDDT.forEach((k, e) -> {
 					DatiDDTType myDatiDDT = myDatiGenerali.addNewDatiDDT();
 					myDatiDDT.setNumeroDDT((String) k.get(0));
-					Calendar cal = Calendar.getInstance(TimeZone.getDefault());
-					cal.setTime((Date) k.get(1));
+//					Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+					Calendar cal = new GregorianCalendar();
+//					cal.setTime((Date) k.get(1));
+					cal.set(2017, Calendar.AUGUST, 03);
 					myDatiDDT.setDataDDT(cal);
 					Integer[] array = e.toArray(new Integer[e.size()]);
 					int[] intArray = Arrays.stream(array).mapToInt(Integer::intValue).toArray();
