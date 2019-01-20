@@ -127,12 +127,12 @@ public class FatturaWriteXML {
 					myMap1.put("ImportoPagamento", importo.toPlainString());
 					datiPagamento.add(i - 1, myMap1);
 				}
-				
+
 				/*
-				 * Creazione Nuova Fattura 
+				 * Creazione Nuova Fattura
 				 * 
-				 *  
-				 */				
+				 * 
+				 */
 				XmlOptions options = new XmlOptions();
 				options.put(XmlOptions.SAVE_PRETTY_PRINT);
 				options.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, 3);
@@ -218,8 +218,7 @@ public class FatturaWriteXML {
 					myDatiDDT.setNumeroDDT((String) k.get(0));
 //					Calendar cal = Calendar.getInstance(TimeZone.getDefault());
 					Calendar cal = new GregorianCalendar();
-//					cal.setTime((Date) k.get(1));
-					cal.set(2017, Calendar.AUGUST, 03);
+					cal.setTime((Date) k.get(1));
 					myDatiDDT.setDataDDT(cal);
 					Integer[] array = e.toArray(new Integer[e.size()]);
 					int[] intArray = Arrays.stream(array).mapToInt(Integer::intValue).toArray();
@@ -235,14 +234,21 @@ public class FatturaWriteXML {
 				while (cursor3.findNextRow(Collections.singletonMap("ChiaveDocumento", chiaveDocumento))) {
 					Row row3 = cursor3.getCurrentRow();
 					String uMisura = row3.getString("UnitaMisura");
-					if (!uMisura.isEmpty()) {
+
+					if (!uMisura.isEmpty() && !(row3.getBigDecimal("Prezzo").compareTo(BigDecimal.ZERO) == 0)) {
 						DettaglioLineeType dettaglioLinee = myDatiBeniServizi.addNewDettaglioLinee();
 						dettaglioLinee.setNumeroLinea(numeroLinea);
 						numeroLinea++;
-						CodiceArticoloType codiceArticolo = dettaglioLinee.addNewCodiceArticolo();
-						codiceArticolo.setCodiceTipo("Interno");
-						codiceArticolo.setCodiceValore(row3.getString("Codice"));
+						if (!row3.getString("Codice").isEmpty()) {
+
+							CodiceArticoloType codiceArticolo = dettaglioLinee.addNewCodiceArticolo();
+							codiceArticolo.setCodiceTipo("Interno");
+							codiceArticolo.setCodiceValore(row3.getString("Codice"));
+
+						}
+
 						dettaglioLinee.setDescrizione(row3.getString("Descrizione1"));
+
 						if (uMisura.equals("Mt")) {
 							dettaglioLinee
 									.setQuantita(row3.getBigDecimal("Metri").setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -253,10 +259,17 @@ public class FatturaWriteXML {
 						} else {
 							return "FAT." + clienteNFattura + " UnitaMisura Error";
 						}
+
 						dettaglioLinee
 								.setPrezzoUnitario(row3.getBigDecimal("Prezzo").setScale(2, BigDecimal.ROUND_HALF_UP));
 						dettaglioLinee
 								.setPrezzoTotale(row3.getBigDecimal("Importo").setScale(2, BigDecimal.ROUND_HALF_UP));
+
+//						if (dettaglioLinee.getPrezzoUnitario().compareTo(BigDecimal.ZERO) == -1) {
+//							ScontoMaggiorazioneType myScontoMaggiorazione = dettaglioLinee.addNewScontoMaggiorazione();
+//							myScontoMaggiorazione.setTipo(TipoScontoMaggiorazioneType.SC);
+//						}
+
 						BigDecimal iva = new BigDecimal(row3.getString("DescIva"));
 						dettaglioLinee.setAliquotaIVA(iva.setScale(2, BigDecimal.ROUND_HALF_UP));
 						if (iva.compareTo(BigDecimal.ZERO) == 0) {
