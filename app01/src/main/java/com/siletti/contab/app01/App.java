@@ -36,6 +36,7 @@ public class App extends Application {
 	/* (non-Javadoc)
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
 	 */
+	@SuppressWarnings("restriction")
 	@Override
 	public void start(Stage primaryStage) {
 
@@ -110,7 +111,7 @@ public class App extends Application {
 	private void showMultipleFileChooser() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select MDB files");
-		File cartella = new File("C:\\gestione\\REPORTS");
+		File cartella = new File("C:\\Importami");
 		if (cartella.exists()) {
 			fileChooser.setInitialDirectory(cartella);
 		}

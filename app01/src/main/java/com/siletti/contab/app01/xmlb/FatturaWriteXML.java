@@ -145,7 +145,9 @@ public class FatturaWriteXML {
 				// DatiTrasmissione
 				DatiTrasmissioneType myDatiTrasmissioneType = myFatturaElettronicaHeader.addNewDatiTrasmissione();
 				myDatiTrasmissioneType.addNewIdTrasmittente().setIdPaese("IT");
-				myDatiTrasmissioneType.getIdTrasmittente().setIdCodice("01808360026");
+				// 27/02/2019 Aruba non accetta dati trasmissione ma mette propri
+//				myDatiTrasmissioneType.getIdTrasmittente().setIdCodice("01808360026");
+				myDatiTrasmissioneType.getIdTrasmittente().setIdCodice("01879020517");
 				myDatiTrasmissioneType.setProgressivoInvio(clienteNFattura);
 				myDatiTrasmissioneType.setFormatoTrasmissione(FormatoTrasmissioneType.FPR_12);
 				if (!codiceDestinatario.isEmpty()) {
@@ -156,8 +158,9 @@ public class FatturaWriteXML {
 				} else {
 					return "FAT." + clienteNFattura + " Manca Codice e Pec Destinatario";
 				}
-				myDatiTrasmissioneType.addNewContattiTrasmittente().setTelefono("015666253");
-				myDatiTrasmissioneType.getContattiTrasmittente().setEmail("info@siletti.it");
+				// 27/02/2019 Aruba non accetta dati trasmissione ma mette propri
+//				myDatiTrasmissioneType.addNewContattiTrasmittente().setTelefono("015666253");
+//				myDatiTrasmissioneType.getContattiTrasmittente().setEmail("info@siletti.it");
 
 				// CedentePrestatore
 				CedentePrestatoreType myCedentePrestatore = myFatturaElettronicaHeader.addNewCedentePrestatore();

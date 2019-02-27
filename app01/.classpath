@@ -17,9 +17,6 @@
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="javafx/**"/>
-		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
@@ -27,5 +24,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="src/main/resources/Schema_del_file_xml_FatturaPA_versione_1.2.1.jar" sourcepath="src/main/resources/temp/"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
